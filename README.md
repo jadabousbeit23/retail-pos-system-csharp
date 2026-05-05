@@ -7,20 +7,33 @@ A full-featured desktop Point of Sale (POS) system built for Lebanese retail bus
 🚀 Features
 
 🛒 Sales system (barcode + cart interface)
+
 💵 Dual-currency payments (LBP/USD, card, mixed)
+
 📦 Inventory management with batch & expiry tracking
+
 🎯 Promotions engine (%, fixed, Buy X Get Y)
+
 🎁 Customer loyalty system (points & stamps)
+
 📊 Reporting system (sales, profit, cashier performance)
+
 🔐 Role-based authentication (Admin / Cashier)
+
 💾 Backup & restore system
 
 🛠️ Tech Stack
+
 C# (.NET Framework)
+
 WPF (XAML)
+
 SQLite
+
 BCrypt
+
 EPPlus
+
 PDFSharp
 
 🧠 Key Highlights
@@ -43,6 +56,4 @@ Clone the repository
 Open in Visual Studio
 Run the project
 
-👨‍💻 Author
-
-Jad Abou Sbeit
+👨‍💻 Author Jad Abou Sbeit
