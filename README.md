@@ -18,7 +18,7 @@ A **professional-grade Point of Sale system** designed for **Lebanese retail bus
 
 ## 🎥 Demo Preview
 
-> *(Add a short screen recording GIF here for better presentation impact)*
+> *(to be added here)*
 
 ![POS Demo](demo.gif)
 
