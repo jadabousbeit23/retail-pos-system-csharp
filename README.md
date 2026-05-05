@@ -1,9 +1,11 @@
 📌 POS System (C# WPF)
+
 🧾 Overview
 
 A full-featured desktop Point of Sale (POS) system built for Lebanese retail businesses, supporting dual-currency transactions (LBP/USD) and complete store management.
 
 🚀 Features
+
 🛒 Sales system (barcode + cart interface)
 💵 Dual-currency payments (LBP/USD, card, mixed)
 📦 Inventory management with batch & expiry tracking
@@ -12,6 +14,7 @@ A full-featured desktop Point of Sale (POS) system built for Lebanese retail bus
 📊 Reporting system (sales, profit, cashier performance)
 🔐 Role-based authentication (Admin / Cashier)
 💾 Backup & restore system
+
 🛠️ Tech Stack
 C# (.NET Framework)
 WPF (XAML)
@@ -21,6 +24,7 @@ EPPlus
 PDFSharp
 
 🧠 Key Highlights
+
 Designed for real Lebanese market (dual currency)
 Built as full system (not demo)
 Handles real business logic
@@ -38,6 +42,7 @@ Handles real business logic
 Clone the repository
 Open in Visual Studio
 Run the project
+
 👨‍💻 Author
 
 Jad Abou Sbeit
