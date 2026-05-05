@@ -19,6 +19,14 @@ SQLite
 BCrypt
 EPPlus
 PDFSharp
+
+🧠 Key Highlights
+Designed for real Lebanese market (dual currency)
+Built as full system (not demo)
+Handles real business logic
+
+
+
 📸 Screenshots
 
 ![Login](login.png)
