@@ -1,0 +1,532 @@
+﻿using POSSystem.Database;
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+
+namespace POSSystem.Windows
+{
+    public partial class FastSalesWindow : Window
+    {
+        // ── State ──────────────────────────────────
+        List<CartItem> cart      = new List<CartItem>();
+        double totalDiscount     = 0;
+        double _currentTotal     = 0;
+        int    _selectedIndex    = -1;
+
+        System.Windows.Threading.DispatcherTimer timer =
+            new System.Windows.Threading.DispatcherTimer();
+
+        // ── Constructor ────────────────────────────
+        public FastSalesWindow()
+        {
+            InitializeComponent();
+
+            lblDate.Content    = $"📅 {DateTime.Now:dd/MM/yyyy}";
+            lblTime.Content    = $"🕐 {DateTime.Now:hh:mm tt}";
+            lblCashier.Content = $"👤 {Session.Username}";
+
+            LoadInvoiceNumber();
+
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += (s, e) =>
+                lblTime.Content = $"🕐 {DateTime.Now:hh:mm tt}";
+            timer.Start();
+
+            this.Closed += (s, e) => timer.Stop();
+
+            // Always keep scan box focused
+            this.Loaded += (s, e) => FocusScan();
+        }
+
+        void FocusScan()
+        {
+            txtScanCode.Focus();
+            txtScanCode.SelectAll();
+        }
+
+        // ── Invoice Number ──────────────────────────
+        void LoadInvoiceNumber()
+        {
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                int count = Convert.ToInt32(
+                    new SQLiteCommand("SELECT COUNT(*) FROM Sales", con).ExecuteScalar());
+                lblInvoice.Content = $"Invoice #: {count + 1:D4}";
+            }
+        }
+
+        // Simple WPF input box replacement for Microsoft.VisualBasic.Interaction.InputBox
+        static string ShowInputBox(string prompt, string title, string defaultValue = "")
+        {
+            var win = new Window
+            {
+                Title = title,
+                Width = 340,
+                Height = 160,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                ResizeMode = ResizeMode.NoResize,
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5"))
+            };
+
+            var stack = new StackPanel { Margin = new Thickness(16) };
+
+            stack.Children.Add(new TextBlock
+            {
+                Text = prompt,
+                FontSize = 13,
+                Margin = new Thickness(0, 0, 0, 8),
+                Foreground = new SolidColorBrush(Colors.Black)
+            });
+
+            var tb = new TextBox
+            {
+                Text = defaultValue,
+                FontSize = 14,
+                Padding = new Thickness(6, 4, 6, 4),
+                Margin = new Thickness(0, 0, 0, 12)
+            };
+            stack.Children.Add(tb);
+
+            var btnPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+
+            string result = defaultValue;
+
+            var btnOk = new Button
+            {
+                Content = "OK",
+                Width = 80,
+                Height = 30,
+                Margin = new Thickness(0, 0, 8, 0),
+                IsDefault = true
+            };
+            btnOk.Click += (s, e) => { result = tb.Text; win.DialogResult = true; };
+
+            var btnCancel = new Button
+            {
+                Content = "Cancel",
+                Width = 80,
+                Height = 30,
+                IsCancel = true
+            };
+            btnCancel.Click += (s, e) => { win.DialogResult = false; };
+
+            btnPanel.Children.Add(btnOk);
+            btnPanel.Children.Add(btnCancel);
+            stack.Children.Add(btnPanel);
+
+            win.Content = stack;
+            tb.Loaded += (s, e) => { tb.SelectAll(); tb.Focus(); };
+
+            bool? ok = win.ShowDialog();
+            return (ok == true) ? result : "";
+        }
+
+        // ══════════════════════════════════════════
+        // SCAN
+        // ══════════════════════════════════════════
+        private void txtScanCode_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string code = txtScanCode.Text.Trim();
+                txtScanCode.Clear();
+                if (!string.IsNullOrEmpty(code))
+                    AddByCode(code);
+                e.Handled = true;
+            }
+        }
+
+        void AddByCode(string code)
+        {
+            int qty = 1;
+            if (int.TryParse(txtQty.Text, out int parsedQty) && parsedQty > 0)
+                qty = parsedQty;
+
+            Product found = null;
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var cmd = new SQLiteCommand(
+                    "SELECT * FROM Products WHERE ProductCode=@code AND Stock>0", con);
+                cmd.Parameters.AddWithValue("@code", code);
+                var r = cmd.ExecuteReader();
+                if (r.Read())
+                    found = new Product
+                    {
+                        Id          = Convert.ToInt32(r["Id"]),
+                        Name        = r["Name"].ToString(),
+                        Price       = Convert.ToDouble(r["Price"]),
+                        Stock       = Convert.ToInt32(r["Stock"]),
+                        Category    = r["Category"].ToString(),
+                        ProductCode = r["ProductCode"].ToString()
+                    };
+                r.Close();
+            }
+
+            if (found != null)
+            {
+                AddToCart(found, qty);
+                ShowMsg($"✅ {found.Name}", true);
+            }
+            else
+                ShowMsg($"❌ '{code}' not found", false);
+
+            // Reset qty back to 1
+            txtQty.Text    = "1";
+            txtNumpad.Text = "";
+            FocusScan();
+        }
+
+        // ══════════════════════════════════════════
+        // CART
+        // ══════════════════════════════════════════
+        void AddToCart(Product p, int qty = 1)
+        {
+            if (qty > p.Stock)
+            {
+                ShowMsg($"⚠️ Only {p.Stock} in stock!", false);
+                return;
+            }
+
+            var existing = cart.Find(c => c.ProductId == p.Id);
+            if (existing != null)
+            {
+                if (existing.Quantity + qty > p.Stock)
+                { ShowMsg($"⚠️ Max stock reached for {p.Name}!", false); return; }
+                existing.Quantity  += qty;
+                existing.TotalPrice = existing.Quantity * existing.UnitPrice
+                                      * (1 - existing.DiscountPct / 100.0);
+            }
+            else
+            {
+                cart.Add(new CartItem
+                {
+                    ProductId   = p.Id,
+                    ProductCode = p.ProductCode,
+                    ProductName = p.Name,
+                    Quantity    = qty,
+                    UnitPrice   = p.Price,
+                    TotalPrice  = p.Price * qty,
+                    DiscountPct = 0
+                });
+            }
+            RefreshCart();
+        }
+
+        void RefreshCart()
+        {
+            lvCart.Items.Clear();
+            int row = 1;
+            double subtotal = 0;
+            int    totalQty = 0;
+            totalDiscount   = 0;
+
+            foreach (var c in cart)
+            {
+                c.RowNumber = row++;
+                lvCart.Items.Add(c);
+                subtotal      += c.UnitPrice * c.Quantity;
+                totalQty      += c.Quantity;
+                totalDiscount += (c.UnitPrice * c.Quantity) - c.TotalPrice;
+            }
+
+            _currentTotal = subtotal - totalDiscount;
+            if (_currentTotal < 0) _currentTotal = 0;
+
+            // Header NET PAY
+            lblNetPay.Content = $"LBP {_currentTotal:N0}";
+
+            // Footer bar
+            lblFooterItems.Content    = cart.Count.ToString();
+            lblFooterQty.Content      = totalQty.ToString();
+            lblFooterDiscount.Content = $"LBP {totalDiscount:N0}";
+            lblFooterSubtotal.Content = $"LBP {subtotal:N0}";
+            lblFooterTotal.Content    = $"LBP {_currentTotal:N0}";
+        }
+
+        private void lvCart_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _selectedIndex = lvCart.SelectedIndex;
+        }
+
+        private void btnRemoveItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Button btn)) return;
+            int productId = Convert.ToInt32(btn.Tag);
+            cart.RemoveAll(c => c.ProductId == productId);
+            RefreshCart();
+            FocusScan();
+        }
+
+        // ══════════════════════════════════════════
+        // NUMPAD
+        // ══════════════════════════════════════════
+        private void btnNum_Click(object sender, RoutedEventArgs e)
+        {
+            string digit = ((Button)sender).Content.ToString();
+            // Don't add multiple dots
+            if (digit == "." && txtNumpad.Text.Contains(".")) return;
+            txtNumpad.Text += digit;
+        }
+
+        private void btnNumBackspace_Click(object sender, RoutedEventArgs e)
+        {
+            if (txtNumpad.Text.Length > 0)
+                txtNumpad.Text = txtNumpad.Text.Substring(0, txtNumpad.Text.Length - 1);
+        }
+
+        private void btnNumClear_Click(object sender, RoutedEventArgs e)
+            => txtNumpad.Text = "";
+
+        private void btnSetQty_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(txtNumpad.Text, out int qty) && qty > 0)
+            {
+                txtQty.Text    = qty.ToString();
+                txtNumpad.Text = "";
+                ShowMsg($"Qty set to {qty} — scan item", true);
+                FocusScan();
+            }
+            else
+                ShowMsg("Enter a valid quantity first!", false);
+        }
+
+        // ══════════════════════════════════════════
+        // DISCOUNT
+        // ══════════════════════════════════════════
+        private void btnDiscount_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) { ShowMsg("Cart is empty!", false); return; }
+
+            // Apply discount to selected item or all
+            if (_selectedIndex >= 0 && _selectedIndex < cart.Count)
+            {
+                var item = cart[_selectedIndex];
+                string input = Microsoft.VisualBasic.Interaction.InputBox(
+                    $"Enter discount % for {item.ProductName}:", "Item Discount", "0");
+                if (double.TryParse(input, out double pct) && pct >= 0 && pct <= 100)
+                {
+                    item.DiscountPct = pct;
+                    item.TotalPrice  = item.UnitPrice * item.Quantity * (1 - pct / 100.0);
+                    RefreshCart();
+                    ShowMsg($"Discount {pct}% applied to {item.ProductName}", true);
+                }
+            }
+            else
+            {
+                string input = Microsoft.VisualBasic.Interaction.InputBox(
+                    "Enter discount % for ALL items:", "Cart Discount", "0");
+                if (double.TryParse(input, out double pct) && pct >= 0 && pct <= 100)
+                {
+                    foreach (var item in cart)
+                    {
+                        item.DiscountPct = pct;
+                        item.TotalPrice  = item.UnitPrice * item.Quantity * (1 - pct / 100.0);
+                    }
+                    RefreshCart();
+                    ShowMsg($"Discount {pct}% applied to all items", true);
+                }
+            }
+        }
+
+        // ══════════════════════════════════════════
+        // VOID
+        // ══════════════════════════════════════════
+        private void btnVoid_Click(object sender, RoutedEventArgs e)
+        {
+            if (!Session.IsAdmin)
+            { ShowMsg("⛔ Admins only!", false); return; }
+            if (cart.Count == 0) { ShowMsg("Cart is empty!", false); return; }
+
+            if (MessageBox.Show("Void this entire sale?", "⛔ Void",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+
+            string summary = "";
+            foreach (var c in cart)
+                summary += $"{c.ProductName} x{c.Quantity}, ";
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var cmd = new SQLiteCommand(
+                    "INSERT INTO VoidedSales (Date,CashierName,Items) VALUES (@d,@c,@i)", con);
+                cmd.Parameters.AddWithValue("@d", DateTime.Now.ToString());
+                cmd.Parameters.AddWithValue("@c", Session.Username);
+                cmd.Parameters.AddWithValue("@i", summary);
+                cmd.ExecuteNonQuery();
+            }
+
+            cart.Clear();
+            RefreshCart();
+            ShowMsg("✅ Sale voided.", true);
+            FocusScan();
+        }
+
+        // ══════════════════════════════════════════
+        // PRINT (preview receipt only)
+        // ══════════════════════════════════════════
+        private void btnPrint_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) { ShowMsg("Cart is empty!", false); return; }
+            PrintReceipt(0, _currentTotal, "Print Preview");
+        }
+
+        // ══════════════════════════════════════════
+        // QUICK PAY — instant receipt, no popup
+        // ══════════════════════════════════════════
+        private void btnQuickPay_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) { ShowMsg("Cart is empty!", false); return; }
+
+            int saleId = SaveSaleToDb("Cash");
+            PrintReceipt(saleId, _currentTotal, "Cash");
+            ResetSale();
+            ShowMsg("⚡ Quick Pay done!", true);
+        }
+
+        // ══════════════════════════════════════════
+        // PAY — open payment window
+        // ══════════════════════════════════════════
+        private void btnPay_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) { ShowMsg("Cart is empty!", false); return; }
+
+            var payWin = new PaymentWindow(_currentTotal);
+            payWin.Owner = this;
+            bool? result = payWin.ShowDialog();
+
+            if (result == true)
+            {
+                int saleId = SaveSaleToDb(payWin.PaymentMethod,
+                    payWin.CashPaid, payWin.CardPaid, payWin.ChangeDue);
+                PrintReceipt(saleId, _currentTotal, payWin.PaymentMethod);
+                ResetSale();
+
+                if (payWin.ChangeDue > 0)
+                    MessageBox.Show($"💵 Give change: LBP {payWin.ChangeDue:N0}",
+                        "Change Due", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        // ══════════════════════════════════════════
+        // SAVE TO DATABASE
+        // ══════════════════════════════════════════
+        int SaveSaleToDb(string method,
+            double cash = 0, double card = 0, double change = 0)
+        {
+            int saleId = 0;
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var saleCmd = new SQLiteCommand(
+                    @"INSERT INTO Sales
+                        (Date, TotalAmount, CashPaid, CardPaid, ChangeDue, PaymentMethod)
+                      VALUES (@date, @total, @cash, @card, @change, @method)", con);
+                saleCmd.Parameters.AddWithValue("@date",   DateTime.Now.ToString());
+                saleCmd.Parameters.AddWithValue("@total",  _currentTotal);
+                saleCmd.Parameters.AddWithValue("@cash",   cash);
+                saleCmd.Parameters.AddWithValue("@card",   card);
+                saleCmd.Parameters.AddWithValue("@change", change);
+                saleCmd.Parameters.AddWithValue("@method", method);
+                saleCmd.ExecuteNonQuery();
+
+                saleId = Convert.ToInt32(
+                    new SQLiteCommand("SELECT last_insert_rowid()", con).ExecuteScalar());
+
+                foreach (var item in cart)
+                {
+                    var iCmd = new SQLiteCommand(
+                        "INSERT INTO SaleItems (SaleId,ProductId,Quantity,Price) " +
+                        "VALUES (@s,@p,@q,@pr)", con);
+                    iCmd.Parameters.AddWithValue("@s",  saleId);
+                    iCmd.Parameters.AddWithValue("@p",  item.ProductId);
+                    iCmd.Parameters.AddWithValue("@q",  item.Quantity);
+                    iCmd.Parameters.AddWithValue("@pr", item.TotalPrice);
+                    iCmd.ExecuteNonQuery();
+
+                    new SQLiteCommand(
+                        $"UPDATE Products SET Stock=Stock-{item.Quantity} WHERE Id={item.ProductId}",
+                        con).ExecuteNonQuery();
+                }
+            }
+            return saleId;
+        }
+
+        // ══════════════════════════════════════════
+        // PRINT RECEIPT
+        // ══════════════════════════════════════════
+        void PrintReceipt(int saleId, double total, string method)
+        {
+            var items = new List<ReceiptItem>();
+            foreach (var c in cart)
+                items.Add(new ReceiptItem
+                {
+                    Name     = c.ProductName,
+                    Quantity = c.Quantity,
+                    Price    = c.TotalPrice
+                });
+
+            var sale = new Sale
+            {
+                Id          = saleId,
+                Date        = DateTime.Now.ToString(),
+                TotalAmount = total
+            };
+
+            var receipt = new ReceiptWindow();
+            receipt.LoadReceipt(sale, items);
+            receipt.Show();
+            receipt.Activate();
+        }
+
+        // ══════════════════════════════════════════
+        // RESET AFTER SALE
+        // ══════════════════════════════════════════
+        void ResetSale()
+        {
+            cart.Clear();
+            totalDiscount  = 0;
+            _currentTotal  = 0;
+            _selectedIndex = -1;
+            txtNumpad.Text = "";
+            txtQty.Text    = "1";
+            RefreshCart();
+            LoadInvoiceNumber();
+            FocusScan();
+        }
+
+        // ══════════════════════════════════════════
+        // SWITCH TO GRID MODE
+        // ══════════════════════════════════════════
+        private void btnGridMode_Click(object sender, RoutedEventArgs e)
+        {
+            var grid = new GridSalesWindow();
+            grid.Show();
+        }
+
+        // ══════════════════════════════════════════
+        // SCAN MESSAGE HELPER
+        // ══════════════════════════════════════════
+        void ShowMsg(string msg, bool success)
+        {
+            lblScanMsg.Content   = msg;
+            lblScanMsg.Foreground = success
+                ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2E7D32"))
+                : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C62828"));
+
+            var t = new System.Windows.Threading.DispatcherTimer
+                { Interval = TimeSpan.FromSeconds(3) };
+            t.Tick += (s, ev) => { lblScanMsg.Content = ""; t.Stop(); };
+            t.Start();
+        }
+    }
+}

@@ -1,0 +1,386 @@
+<Window x:Class="POSSystem.Windows.LoyaltyCardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Print Loyalty Card"
+        Width="580" Height="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F0F0F0">
+
+    <Window.Resources>
+        <!-- Button face gradients -->
+        <LinearGradientBrush x:Key="BtnFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FDFDFD" Offset="0"/>
+            <GradientStop Color="#F2F2F2" Offset="0.5"/>
+            <GradientStop Color="#E8E8E8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EEF4FF" Offset="0"/>
+            <GradientStop Color="#DBE9FF" Offset="0.5"/>
+            <GradientStop Color="#C8DBFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D4D4D4" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Bevel brush -->
+        <LinearGradientBrush x:Key="BevelNormal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.49"/>
+            <GradientStop Color="#A0A0A0" Offset="0.50"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BevelPress" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A0A0A0" Offset="0"/>
+            <GradientStop Color="#A0A0A0" Offset="0.49"/>
+            <GradientStop Color="#FFFFFF" Offset="0.50"/>
+            <GradientStop Color="#FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- 3D Bevel Button -->
+        <Style x:Key="BigBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#B8B8B8" BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource BtnFace}"
+                                        CornerRadius="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="FaceBorder" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+            <Label Content="Loyalty Card Preview"
+                   Foreground="#2B6CC4"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Padding="0"
+                   FontFamily="Segoe UI, Tahoma"/>
+            <Label Content="Print and laminate as a hard card (CR80 standard size)"
+                   Foreground="#888888"
+                   FontSize="11"
+                   Margin="0,-2,0,0"
+                   Padding="0"
+                   FontFamily="Segoe UI, Tahoma"/>
+        </StackPanel>
+
+        <!-- PROFESSIONAL CARD -->
+        <Border Grid.Row="1" x:Name="cardBorder"
+                Width="480" Height="300"
+                HorizontalAlignment="Center"
+                CornerRadius="16"
+                ClipToBounds="True"
+                BorderBrush="#C0C0C0"
+                BorderThickness="1">
+
+            <!-- Deep Navy Professional Background -->
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#1A237E" Offset="0"/>
+                    <GradientStop Color="#0D1642" Offset="0.6"/>
+                    <GradientStop Color="#050A1F" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <!-- Subtle Pattern Overlay -->
+            <Grid>
+                <!-- Diagonal Lines Pattern -->
+                <Canvas Opacity="0.03">
+                    <Path Data="M0,300 L480,0" Stroke="White" StrokeThickness="1"/>
+                    <Path Data="M40,300 L480,40" Stroke="White" StrokeThickness="1"/>
+                    <Path Data="M80,300 L480,80" Stroke="White" StrokeThickness="1"/>
+                    <Path Data="M120,300 L480,120" Stroke="White" StrokeThickness="1"/>
+                    <Path Data="M160,300 L480,160" Stroke="White" StrokeThickness="1"/>
+                    <Path Data="M200,300 L480,200" Stroke="White" StrokeThickness="1"/>
+                    <Path Data="M240,300 L480,240" Stroke="White" StrokeThickness="1"/>
+                    <Path Data="M280,300 L480,280" Stroke="White" StrokeThickness="1"/>
+                </Canvas>
+
+                <!-- Gold Accent Top Line -->
+                <Rectangle Height="3" VerticalAlignment="Top">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#D4AF37"/>
+                            <GradientStop Color="#F5E6A3" Offset="0.5"/>
+                            <GradientStop Color="#D4AF37" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+
+                <!-- Main Content -->
+                <Grid Margin="24,20,24,18">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header Row -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Professional Logo Circle -->
+                        <Border Width="48" Height="48"
+                                CornerRadius="24"
+                                Margin="0,0,12,0"
+                                BorderBrush="#D4AF37"
+                                BorderThickness="2">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#F0F0F0" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Label Content="★"
+                                   Foreground="#1A237E"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   HorizontalContentAlignment="Center"
+                                   VerticalContentAlignment="Center"
+                                   Padding="0"/>
+                        </Border>
+
+                        <!-- Store Info -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <Label x:Name="lblStoreName"
+                                   Content="MY STORE"
+                                   Foreground="#FFFFFF"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Padding="0"
+                                   FontFamily="Segoe UI, Tahoma"/>
+                            <Label Content="MEMBER REWARDS PROGRAM"
+                                   Foreground="#D4AF37"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Margin="0,-4,0,0"
+                                   Padding="0"
+                                   FontFamily="Segoe UI, Tahoma"/>
+                        </StackPanel>
+
+                        <!-- EMV Chip -->
+                        <Border Grid.Column="2"
+                                Width="44" Height="34"
+                                CornerRadius="6"
+                                Margin="0,0,0,0"
+                                BorderBrush="#B8960C"
+                                BorderThickness="1">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#E8D5A3" Offset="0"/>
+                                    <GradientStop Color="#D4AF37" Offset="0.3"/>
+                                    <GradientStop Color="#B8960C" Offset="0.7"/>
+                                    <GradientStop Color="#9A7B0A" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Grid>
+                                <Rectangle Height="1" VerticalAlignment="Top"
+                                           Margin="6,10,6,0" Fill="#7A5B00" Opacity="0.4"/>
+                                <Rectangle Height="1" VerticalAlignment="Top"
+                                           Margin="6,17,6,0" Fill="#7A5B00" Opacity="0.3"/>
+                                <Rectangle Height="1" VerticalAlignment="Top"
+                                           Margin="6,24,6,0" Fill="#7A5B00" Opacity="0.2"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Member Information -->
+                    <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,10,0,0">
+                        <Label Content="CARDHOLDER NAME"
+                               Foreground="#8A9AB0"
+                               FontSize="9"
+                               FontWeight="Bold"
+                               Padding="0"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Label x:Name="lblCustomerName"
+                               Content="CUSTOMER NAME"
+                               Foreground="#FFFFFF"
+                               FontSize="26"
+                               FontWeight="Bold"
+                               Margin="0,-2,0,0"
+                               Padding="0"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Label x:Name="lblPhone"
+                               Content=""
+                               Foreground="#A0AEC0"
+                               FontSize="11"
+                               Margin="0,2,0,0"
+                               Padding="0"
+                               FontFamily="Segoe UI, Tahoma"/>
+                    </StackPanel>
+
+                    <!-- Barcode and Points Row -->
+                    <Grid Grid.Row="2" Margin="0,8,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Clean Barcode Area -->
+                        <Border Background="#FFFFFF"
+                                Padding="10,8"
+                                CornerRadius="6"
+                                Margin="0,0,12,0">
+                            <Grid>
+                                <Canvas x:Name="canvasBarcode" Height="52" HorizontalAlignment="Stretch"/>
+                                <Label x:Name="lblBarcodeText"
+                                       Content="CUS-XXX-0000"
+                                       Foreground="#1A237E"
+                                       FontSize="11"
+                                       FontFamily="Consolas"
+                                       FontWeight="Bold"
+                                       HorizontalContentAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,2"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Elegant Points Display -->
+                        <Border Grid.Column="1"
+                                CornerRadius="10"
+                                Padding="16,10"
+                                Width="100"
+                                BorderBrush="#D4AF37"
+                                BorderThickness="1">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#1A237E" Offset="0"/>
+                                    <GradientStop Color="#0D1642" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel>
+                                <Label x:Name="lblPoints"
+                                       Content="0"
+                                       Foreground="#D4AF37"
+                                       FontSize="28"
+                                       FontWeight="Bold"
+                                       HorizontalContentAlignment="Center"
+                                       Padding="0"
+                                       FontFamily="Segoe UI, Tahoma"/>
+                                <Label Content="POINTS"
+                                       Foreground="#8A9AB0"
+                                       FontSize="9"
+                                       FontWeight="Bold"
+                                       Margin="0,-6,0,0"
+                                       HorizontalContentAlignment="Center"
+                                       Padding="0"
+                                       FontFamily="Segoe UI, Tahoma"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Professional Footer -->
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Content="Earn 1 point per LBP 1,000 spent • Present this card at every purchase"
+                               Foreground="#5A6A8A"
+                               FontSize="9"
+                               Padding="0"
+                               VerticalAlignment="Center"
+                               FontFamily="Segoe UI, Tahoma"/>
+
+                        <!-- Contactless Icon -->
+                        <Border Grid.Column="1" 
+                                Width="24" Height="24"
+                                CornerRadius="12"
+                                Background="#D4AF37"
+                                Opacity="0.9">
+                            <Label Content="📶"
+                                   FontSize="12"
+                                   HorizontalContentAlignment="Center"
+                                   VerticalContentAlignment="Center"
+                                   Padding="0"/>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- Holographic Effect Corner -->
+                <Ellipse Width="80" Height="80"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Bottom"
+                         Margin="0,0,-20,-20"
+                         Opacity="0.08"
+                         Fill="White"/>
+            </Grid>
+        </Border>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,20,0,0">
+
+            <Button Content="🖨️ Print Card"
+                    Width="130" Height="38"
+                    Margin="0,0,8,0"
+                    Style="{StaticResource BigBtn}"
+                    Click="btnPrint_Click"/>
+
+            <Button Content="💾 Export PNG"
+                    Width="120" Height="38"
+                    Margin="0,0,8,0"
+                    Style="{StaticResource BigBtn}"
+                    Click="btnExport_Click"/>
+
+            <Button Content="✕ Close"
+                    Width="100" Height="38"
+                    Style="{StaticResource BigBtn}"
+                    Click="btnClose_Click"/>
+        </StackPanel>
+
+    </Grid>
+</Window>

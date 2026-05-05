@@ -1,0 +1,158 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Data.SQLite;
+using System.Windows;
+using POSSystem.Database;
+
+namespace POSSystem.Windows
+{
+    public partial class PurchaseOrdersWindow : Window
+    {
+        private ObservableCollection<PurchaseOrder> allOrders = new ObservableCollection<PurchaseOrder>();
+        private string currentFilter = "All";
+
+        public PurchaseOrdersWindow()
+        {
+            InitializeComponent();
+            InitializeWindow();
+        }
+
+        private void InitializeWindow()
+        {
+            lvOrders.ItemsSource = allOrders;
+            LoadOrders();
+        }
+
+        private void LoadOrders()
+        {
+            allOrders.Clear();
+
+            try
+            {
+                using (SQLiteConnection con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+                {
+                    con.Open();
+
+                    string query = @"
+                        SELECT 
+                            Id, 
+                            SupplierId,
+                            (SELECT Name FROM Suppliers WHERE Id = SupplierId) as SupplierName,
+                            OrderDate, 
+                            Status,
+                            Notes
+                        FROM PurchaseOrders
+                        ORDER BY OrderDate DESC";
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                    {
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var order = new PurchaseOrder
+                                {
+                                    OrderId = reader["Id"].ToString(),
+                                    SupplierName = reader["SupplierName"].ToString(),
+                                    OrderDate = DateTime.TryParse(reader["OrderDate"].ToString(), out var date) ? date : DateTime.Now,
+                                    Status = reader["Status"].ToString(),
+                                    StatusColor = GetStatusColor(reader["Status"].ToString())
+                                };
+
+                                allOrders.Add(order);
+                            }
+                        }
+                    }
+                }
+
+                ApplyFilter();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading orders: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string GetStatusColor(string status)
+        {
+            return status switch
+            {
+                "Received" => "#2E7D32",
+                "Cancelled" => "#B71C1C",
+                "Pending" => "#E65100",
+                _ => "#E65100"
+            };
+        }
+
+        private void btnSuppliers_Click(object sender, RoutedEventArgs e)
+        {
+            SuppliersWindow supplier = new SuppliersWindow();
+            supplier.ShowDialog();
+        }
+
+        private void btnNewOrder_Click(object sender, RoutedEventArgs e)
+        {
+            NewOrderWindow newOrder = new NewOrderWindow();
+            newOrder.ShowDialog();
+            LoadOrders(); // Refresh list after creating new order
+        }
+
+        private void btnExportPdf_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Implement PDF export functionality
+            MessageBox.Show("PDF export feature coming soon", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnFilterPending_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Pending";
+            ApplyFilter();
+        }
+
+        private void btnFilterReceived_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Received";
+            ApplyFilter();
+        }
+
+        private void btnFilterCancelled_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Cancelled";
+            ApplyFilter();
+        }
+
+        private void btnFilterAll_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "All";
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            lvOrders.Items.Clear();
+
+            foreach (var order in allOrders)
+            {
+                if (currentFilter == "All" || order.Status == currentFilter)
+                {
+                    lvOrders.Items.Add(order);
+                }
+            }
+        }
+    }
+
+    public class PurchaseOrder
+    {
+        public string OrderId { get; set; }
+        public string SupplierName { get; set; }
+        public DateTime OrderDate { get; set; }
+        public decimal TotalAmount { get; set; }
+        public string Status { get; set; }
+        public string StatusColor { get; set; }
+    }
+}

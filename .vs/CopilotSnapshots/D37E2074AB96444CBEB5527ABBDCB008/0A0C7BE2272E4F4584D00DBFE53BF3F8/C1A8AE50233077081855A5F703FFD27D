@@ -1,0 +1,212 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
+
+namespace POSSystem.Database
+{
+    public class ReceiptPrinter
+    {
+        // ══════════════════════════════════════
+        // PRINT RECEIPT — shows print dialog
+        // ══════════════════════════════════════
+        public static void PrintReceipt(Sale sale, List<ReceiptItem> items)
+        {
+            PrintDialog pd = new PrintDialog();
+
+            bool? result = pd.ShowDialog();
+            if (result != true) return;
+
+            FlowDocument doc = BuildReceiptDocument(sale, items, pd);
+            IDocumentPaginatorSource src = doc;
+            pd.PrintDocument(
+                src.DocumentPaginator,
+                $"Receipt #{sale.Id:D4}");
+        }
+
+        // ══════════════════════════════════════
+        // BUILD RECEIPT DOCUMENT
+        // ══════════════════════════════════════
+        static FlowDocument BuildReceiptDocument(
+            Sale sale, List<ReceiptItem> items, PrintDialog pd)
+        {
+            double pageW = pd.PrintableAreaWidth;
+
+            FlowDocument doc = new FlowDocument();
+            doc.PageWidth = pageW;
+            doc.PagePadding = new Thickness(20, 10, 20, 10);
+            doc.ColumnWidth = pageW;
+            doc.FontFamily = new FontFamily("Courier New");
+            doc.FontSize = 11;
+            doc.Foreground = Brushes.Black;
+            doc.Background = Brushes.White;
+
+            // ── Header ──
+            doc.Blocks.Add(CenteredPara("================================", 11, false));
+            doc.Blocks.Add(CenteredPara("POS SYSTEM", 16, true));
+            doc.Blocks.Add(CenteredPara("Point of Sale Management", 10, false));
+            doc.Blocks.Add(CenteredPara("================================", 11, false));
+
+            // ── Info ──
+            doc.Blocks.Add(LinePair("Receipt #:", $"{sale.Id:D4}"));
+            doc.Blocks.Add(LinePair("Date:", FormatDate(sale.Date ?? DateTime.Now.ToString())));
+            doc.Blocks.Add(LinePair("Cashier:", Session.Username));
+            doc.Blocks.Add(LinePair("Time:", DateTime.Now.ToString("HH:mm:ss")));
+            doc.Blocks.Add(CenteredPara("--------------------------------", 11, false));
+
+            // ── Column headers ──
+            doc.Blocks.Add(ColumnHeader());
+            doc.Blocks.Add(CenteredPara("--------------------------------", 11, false));
+
+            // ── Items ──
+            double subtotal = 0;
+            foreach (ReceiptItem item in items)
+            {
+                doc.Blocks.Add(ItemLine(item));
+                subtotal += item.Price;
+            }
+
+            doc.Blocks.Add(CenteredPara("--------------------------------", 11, false));
+
+            // ── Totals ──
+            double discountAmt = subtotal - sale.TotalAmount;
+            doc.Blocks.Add(LinePair("Subtotal:", $"LBP {subtotal:N0}"));
+
+            if (discountAmt > 0.01)
+                doc.Blocks.Add(LinePair("Discount:", $"-LBP {discountAmt:N0}"));
+
+            doc.Blocks.Add(CenteredPara("================================", 11, false));
+
+            // ── Big total ──
+            Paragraph totalPara = new Paragraph();
+            totalPara.TextAlignment = TextAlignment.Center;
+            totalPara.Margin = new Thickness(0, 2, 0, 2);
+            totalPara.Inlines.Add(new Run($"TOTAL: LBP {sale.TotalAmount:N0}")
+            {
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                FontFamily = new FontFamily("Courier New")
+            });
+            doc.Blocks.Add(totalPara);
+
+            doc.Blocks.Add(CenteredPara("================================", 11, false));
+
+            // ── Payment ──
+            doc.Blocks.Add(LinePair("Payment:", "CASH"));
+            doc.Blocks.Add(LinePair("Change:", "LBP 0"));
+            doc.Blocks.Add(CenteredPara("--------------------------------", 11, false));
+
+            // ── Footer ──
+            doc.Blocks.Add(CenteredPara("Thank you for your purchase!", 11, true));
+            doc.Blocks.Add(CenteredPara("Please come again.", 10, false));
+            doc.Blocks.Add(CenteredPara(" ", 8, false));
+            doc.Blocks.Add(CenteredPara($"Printed: {DateTime.Now:dd/MM/yyyy HH:mm}", 8, false));
+            doc.Blocks.Add(CenteredPara("================================", 11, false));
+
+            // Extra blank lines for clean thermal cut
+            doc.Blocks.Add(CenteredPara(" ", 10, false));
+            doc.Blocks.Add(CenteredPara(" ", 10, false));
+            doc.Blocks.Add(CenteredPara(" ", 10, false));
+
+            return doc;
+        }
+
+        // ══════════════════════════════════════
+        // HELPERS
+        // ══════════════════════════════════════
+        static Paragraph CenteredPara(string text, double size, bool bold)
+        {
+            Paragraph p = new Paragraph();
+            p.TextAlignment = TextAlignment.Center;
+            p.Margin = new Thickness(0, 1, 0, 1);
+            Run r = new Run(text);
+            r.FontSize = size;
+            r.FontFamily = new FontFamily("Courier New");
+            if (bold) r.FontWeight = FontWeights.Bold;
+            p.Inlines.Add(r);
+            return p;
+        }
+
+        static Paragraph LinePair(string label, string value)
+        {
+            Paragraph p = new Paragraph();
+            p.TextAlignment = TextAlignment.Left;
+            p.Margin = new Thickness(0, 1, 0, 1);
+            int totalW = 32;
+            int padding = totalW - label.Length - value.Length;
+            string pad = padding > 0 ? new string(' ', padding) : " ";
+            p.Inlines.Add(new Run(label + pad + value)
+            {
+                FontSize = 11,
+                FontFamily = new FontFamily("Courier New")
+            });
+            return p;
+        }
+
+        static Paragraph ColumnHeader()
+        {
+            Paragraph p = new Paragraph();
+            p.TextAlignment = TextAlignment.Left;
+            p.Margin = new Thickness(0, 1, 0, 1);
+            p.Inlines.Add(new Run(
+                PadRight("ITEM", 16) +
+                PadLeft("QTY", 4) +
+                PadLeft("PRICE", 7) +
+                PadLeft("TOTAL", 7))
+            {
+                FontSize = 11,
+                FontWeight = FontWeights.Bold,
+                FontFamily = new FontFamily("Courier New")
+            });
+            return p;
+        }
+
+        static Paragraph ItemLine(ReceiptItem item)
+        {
+            Paragraph p = new Paragraph();
+            p.TextAlignment = TextAlignment.Left;
+            p.Margin = new Thickness(0, 1, 0, 1);
+
+            double unitPrice = item.Quantity > 0
+                ? item.Price / item.Quantity : item.Price;
+
+            string name = item.Name.Length > 15
+                ? item.Name.Substring(0, 14) + "."
+                : item.Name;
+
+            string line =
+                PadRight(name, 16) +
+                PadLeft(item.Quantity.ToString(), 4) +
+                PadLeft($"LBP {unitPrice:N0}", 7) +
+                PadLeft($"LBP {item.Price:N0}", 7);
+
+            p.Inlines.Add(new Run(line)
+            {
+                FontSize = 11,
+                FontFamily = new FontFamily("Courier New")
+            });
+            return p;
+        }
+
+        static string PadRight(string s, int total)
+        {
+            if (s.Length >= total) return s.Substring(0, total);
+            return s + new string(' ', total - s.Length);
+        }
+
+        static string PadLeft(string s, int total)
+        {
+            if (s.Length >= total) return s;
+            return new string(' ', total - s.Length) + s;
+        }
+
+        static string FormatDate(string raw)
+        {
+            if (DateTime.TryParse(raw, out DateTime dt))
+                return dt.ToString("dd/MM/yyyy");
+            return raw;
+        }
+    }
+}   

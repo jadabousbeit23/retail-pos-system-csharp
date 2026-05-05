@@ -1,0 +1,103 @@
+﻿using POSSystem.Database;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace POSSystem.Windows
+{
+    public partial class ReceiptWindow : Window
+    {
+        private Sale _currentSale;
+        private List<ReceiptItem> _items;
+
+        public ReceiptWindow()
+        {
+            InitializeComponent();
+        }
+
+        public void LoadReceipt(Sale sale, List<ReceiptItem> items)
+        {
+            _currentSale = sale;
+            _items = items;
+
+            if (sale != null)
+            {
+                lblSaleInfo.Content = sale.Id > 0
+                    ? $"Sale #{sale.Id}  —  {sale.Date}"
+                    : $"Preview  —  {sale.Date}";
+                lblReceiptTotal.Content = $"LBP {sale.TotalAmount:N0}";
+            }
+
+            lvReceiptItems.ItemsSource = items;
+        }
+
+        // ── PRINT ─────────────────────────────────────
+        private void btnPrintReceipt_Click(object sender, RoutedEventArgs e)
+        {
+            if (_items == null || _items.Count == 0)
+            { MessageBox.Show("Nothing to print!"); return; }
+
+            try
+            {
+                ReceiptPrinter.PrintReceipt(_currentSale, _items);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Print error: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ── EXPORT PDF ────────────────────────────────
+        private void btnExportPdf_Click(object sender, RoutedEventArgs e)
+        {
+            if (_items == null || _items.Count == 0)
+            { MessageBox.Show("Nothing to export!"); return; }
+
+            try
+            {
+                // Build SaleRow list for PDF helper
+                var rows = new List<SaleRow>();
+                foreach (var item in _items)
+                    rows.Add(new SaleRow
+                    {
+                        Id = _currentSale?.Id ?? 0,
+                        Date = _currentSale?.Date ?? DateTime.Now.ToString(),
+                        TotalAmount = item.Price
+                    });
+
+                PdfExportHelper.ExportDailyReport(
+                    rows,
+                    _currentSale?.TotalAmount ?? 0,
+                    1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"PDF export error: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ── CLOSE ─────────────────────────────────────
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+            => this.Close();
+    }
+
+    // ── Sale model (shared) ───────────────────────────
+    public class Sale
+    {
+        public int Id { get; set; }
+        public string Date { get; set; }
+        public double TotalAmount { get; set; }
+    }
+
+    // ── ReceiptItem model ─────────────────────────────
+    public class ReceiptItem
+    {
+        public string Name { get; set; }
+        public int Quantity { get; set; }
+        public double Price { get; set; }
+        public string PriceDisplay => $"LBP {Price:N0}";
+    }
+}

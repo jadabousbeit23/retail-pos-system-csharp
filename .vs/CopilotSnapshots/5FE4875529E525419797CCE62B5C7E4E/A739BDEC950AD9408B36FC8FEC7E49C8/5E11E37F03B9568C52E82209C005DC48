@@ -1,0 +1,495 @@
+﻿using POSSystem.Database;
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Effects;
+
+namespace POSSystem.Windows
+{
+    public partial class GridSalesWindow : Window
+    {
+        List<CartItem> cart = new List<CartItem>();
+        double totalDiscount = 0;
+        double _currentTotal = 0;
+        string _currentCategory = "All";
+
+        string[] tileColors = {
+            "#C62828","#AD1457","#6A1B9A","#4527A0",
+            "#1565C0","#0277BD","#00695C","#2E7D32",
+            "#558B2F","#F57F17","#E65100","#4E342E",
+            "#37474F","#283593","#00838F","#1B5E20"
+        };
+
+        System.Windows.Threading.DispatcherTimer timer =
+            new System.Windows.Threading.DispatcherTimer();
+
+        public GridSalesWindow()
+        {
+            InitializeComponent();
+
+            lblDate.Content = $"📅 {DateTime.Now:dd/MM/yyyy}";
+            lblTime.Content = $"🕐 {DateTime.Now:hh:mm tt}";
+            lblCashier.Content = $"👤 {Session.Username}";
+            lblFooterCashier.Content = Session.Username;
+
+            LoadInvoiceNumber();
+            LoadCategories();
+
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += (s, e) =>
+                lblTime.Content = $"🕐 {DateTime.Now:hh:mm tt}";
+            timer.Start();
+
+            this.Closed += (s, e) => timer.Stop();
+        }
+
+        void LoadInvoiceNumber()
+        {
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                int count = Convert.ToInt32(
+                    new SQLiteCommand("SELECT COUNT(*) FROM Sales", con).ExecuteScalar());
+                lblInvoice.Content = $"Invoice #: {count + 1:D4}";
+            }
+        }
+
+        // ── CATEGORIES ───────────────────────────────
+        void LoadCategories()
+        {
+            spCategories.Children.Clear();
+            spCategories.Children.Add(MakeCategoryTab("🛍️ All", "All", "#1565C0"));
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var r = new SQLiteCommand(
+                    "SELECT DISTINCT Category FROM Products WHERE Stock>0 ORDER BY Category",
+                    con).ExecuteReader();
+                int i = 0;
+                while (r.Read())
+                {
+                    string cat = r["Category"].ToString();
+                    string color = tileColors[i % tileColors.Length];
+                    i++;
+                    spCategories.Children.Add(MakeCategoryTab(cat, cat, color));
+                }
+                r.Close();
+            }
+
+            LoadProducts(_currentCategory);
+        }
+
+        Border MakeCategoryTab(string label, string category, string color)
+        {
+            bool isSelected = category == _currentCategory;
+            var border = new Border
+            {
+                Margin = new Thickness(0, 0, 6, 0),
+                Padding = new Thickness(16, 0, 16, 0),
+                Background = isSelected
+                    ? new SolidColorBrush((Color)ColorConverter.ConvertFromString(color))
+                    : new SolidColorBrush(Colors.White),
+                BorderBrush = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString(color)),
+                BorderThickness = new Thickness(2),
+                Cursor = Cursors.Hand,
+                CornerRadius = new CornerRadius(4, 4, 0, 0)
+            };
+            border.Child = new Label
+            {
+                Content = label,
+                FontSize = 12,
+                FontWeight = FontWeights.Bold,
+                Foreground = isSelected ? Brushes.White
+                    : new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)),
+                VerticalContentAlignment = VerticalAlignment.Center,
+                Padding = new Thickness(0)
+            };
+            string cat = category;
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                _currentCategory = cat;
+                LoadCategories();
+            };
+            return border;
+        }
+
+        // ── PRODUCTS ─────────────────────────────────
+        void LoadProducts(string category)
+        {
+            wpProducts.Children.Clear();
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                string query = category == "All"
+                    ? "SELECT * FROM Products WHERE Stock>0 ORDER BY Name"
+                    : "SELECT * FROM Products WHERE Category=@cat AND Stock>0 ORDER BY Name";
+                var cmd = new SQLiteCommand(query, con);
+                if (category != "All") cmd.Parameters.AddWithValue("@cat", category);
+
+                var r = cmd.ExecuteReader();
+                int i = 0;
+                while (r.Read())
+                {
+                    var p = new Product
+                    {
+                        Id = Convert.ToInt32(r["Id"]),
+                        Name = r["Name"].ToString(),
+                        Price = Convert.ToDouble(r["Price"]),
+                        Stock = Convert.ToInt32(r["Stock"]),
+                        Category = r["Category"].ToString(),
+                        ProductCode = r["ProductCode"].ToString()
+                    };
+                    wpProducts.Children.Add(
+                        MakeProductTile(p, tileColors[i % tileColors.Length]));
+                    i++;
+                }
+                r.Close();
+            }
+        }
+
+        Border MakeProductTile(Product p, string colorHex)
+        {
+            var color = (Color)ColorConverter.ConvertFromString(colorHex);
+            var darkBg = Color.FromRgb(
+                (byte)Math.Max(0, color.R - 50),
+                (byte)Math.Max(0, color.G - 50),
+                (byte)Math.Max(0, color.B - 50));
+
+            var border = new Border
+            {
+                Width = 152,
+                Height = 122,
+                Margin = new Thickness(6),
+                CornerRadius = new CornerRadius(8),
+                Background = new SolidColorBrush(color),
+                Cursor = Cursors.Hand,
+                BorderThickness = new Thickness(0),
+                Effect = new DropShadowEffect
+                { BlurRadius = 8, ShadowDepth = 3, Opacity = 0.22, Color = Colors.Black }
+            };
+
+            border.MouseEnter += (s, e) =>
+            {
+                border.BorderThickness = new Thickness(2);
+                border.BorderBrush = Brushes.White;
+                border.Effect = new DropShadowEffect
+                { BlurRadius = 14, ShadowDepth = 5, Opacity = 0.32, Color = Colors.Black };
+            };
+            border.MouseLeave += (s, e) =>
+            {
+                border.BorderThickness = new Thickness(0);
+                border.Effect = new DropShadowEffect
+                { BlurRadius = 8, ShadowDepth = 3, Opacity = 0.22, Color = Colors.Black };
+            };
+
+            var grid = new Grid();
+
+            // Initials circle
+            string initials = p.Name.Length >= 2
+                ? p.Name.Substring(0, 2).ToUpper() : p.Name.ToUpper();
+            grid.Children.Add(new Border
+            {
+                Width = 46,
+                Height = 46,
+                CornerRadius = new CornerRadius(23),
+                Background = new SolidColorBrush(darkBg),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(0, 10, 0, 0),
+                Child = new Label
+                {
+                    Content = initials,
+                    FontSize = 16,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = Brushes.White,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    Padding = new Thickness(0)
+                }
+            });
+
+            // Product name
+            grid.Children.Add(new Label
+            {
+                Content = p.Name,
+                FontSize = 11,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Margin = new Thickness(4, 0, 4, 24),
+                Padding = new Thickness(0)
+            });
+
+            // Price badge
+            grid.Children.Add(new Border
+            {
+                VerticalAlignment = VerticalAlignment.Bottom,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(8, 3, 8, 3),
+                Margin = new Thickness(0, 0, 0, 4),
+                Background = new SolidColorBrush(darkBg),
+                Child = new Label
+                {
+                    Content = $"LBP {p.Price:N0}",
+                    FontSize = 10,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = Brushes.White,
+                    Padding = new Thickness(0)
+                }
+            });
+
+            // Low stock badge
+            if (p.Stock <= 5)
+            {
+                grid.Children.Add(new Border
+                {
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    CornerRadius = new CornerRadius(0, 8, 0, 6),
+                    Background = new SolidColorBrush(Colors.OrangeRed),
+                    Padding = new Thickness(5, 2, 5, 2),
+                    Child = new Label
+                    {
+                        Content = $"⚠️{p.Stock}",
+                        FontSize = 9,
+                        Foreground = Brushes.White,
+                        Padding = new Thickness(0)
+                    }
+                });
+            }
+
+            border.Child = grid;
+            Product product = p;
+            border.MouseLeftButtonUp += (s, e) => AddToCart(product);
+            return border;
+        }
+
+        // ── CART ─────────────────────────────────────
+        void AddToCart(Product p)
+        {
+            var existing = cart.Find(c => c.ProductId == p.Id);
+            if (existing != null)
+            {
+                if (existing.Quantity + 1 > p.Stock)
+                { MessageBox.Show($"⚠️ Max stock for {p.Name}!"); return; }
+                existing.Quantity++;
+                existing.TotalPrice = existing.Quantity * existing.UnitPrice
+                                      * (1 - existing.DiscountPct / 100.0);
+            }
+            else
+            {
+                cart.Add(new CartItem
+                {
+                    ProductId = p.Id,
+                    ProductCode = p.ProductCode,
+                    ProductName = p.Name,
+                    Quantity = 1,
+                    UnitPrice = p.Price,
+                    TotalPrice = p.Price,
+                    DiscountPct = 0
+                });
+            }
+            RefreshCart();
+        }
+
+        void RefreshCart()
+        {
+            lvCart.Items.Clear();
+            double subtotal = 0;
+            int totalQty = 0;
+            totalDiscount = 0;
+            int rowNum = 1;
+
+            foreach (var c in cart)
+            {
+                c.RowNumber = rowNum++;
+                lvCart.Items.Add(c);
+                subtotal += c.UnitPrice * c.Quantity;
+                totalQty += c.Quantity;
+                totalDiscount += (c.UnitPrice * c.Quantity) - c.TotalPrice;
+            }
+
+            _currentTotal = Math.Max(0, subtotal - totalDiscount);
+
+            lblSubtotal.Content = $"LBP {subtotal:N0}";
+            lblDiscount.Content = $"LBP {totalDiscount:N0}";
+            lblTotal.Content = $"LBP {_currentTotal:N0}";
+            lblCartCount.Content = $"{cart.Count} items";
+            lblFooterItems.Content = cart.Count.ToString();
+            lblFooterQty.Content = totalQty.ToString();
+            lblFooterTotal.Content = $"LBP {_currentTotal:N0}";
+        }
+
+        private void lvCart_SelectionChanged(object sender, SelectionChangedEventArgs e) { }
+
+        private void btnRemoveItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Button btn)) return;
+            int productId = Convert.ToInt32(btn.Tag);
+            cart.RemoveAll(c => c.ProductId == productId);
+            RefreshCart();
+        }
+
+        // ── ACTIONS ──────────────────────────────────
+        private void btnClearCart_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) return;
+            cart.Clear();
+            totalDiscount = 0;
+            RefreshCart();
+        }
+
+        private void btnVoid_Click(object sender, RoutedEventArgs e)
+        {
+            if (!Session.IsAdmin)
+            { MessageBox.Show("⛔ Admins only!", "Access Denied"); return; }
+            if (cart.Count == 0) { MessageBox.Show("Cart is empty!"); return; }
+
+            if (MessageBox.Show("Void this entire sale?", "⛔ Void",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+
+            string summary = "";
+            foreach (var c in cart) summary += $"{c.ProductName} x{c.Quantity}, ";
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var cmd = new SQLiteCommand(
+                    "INSERT INTO VoidedSales (Date,CashierName,Items) VALUES (@d,@c,@i)", con);
+                cmd.Parameters.AddWithValue("@d", DateTime.Now.ToString());
+                cmd.Parameters.AddWithValue("@c", Session.Username);
+                cmd.Parameters.AddWithValue("@i", summary);
+                cmd.ExecuteNonQuery();
+            }
+
+            cart.Clear();
+            RefreshCart();
+        }
+
+        private void btnDiscount_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) { MessageBox.Show("Cart is empty!"); return; }
+            string input = ShowInputBox("Enter discount % for all items:", "Cart Discount", "0");
+            if (double.TryParse(input, out double pct) && pct >= 0 && pct <= 100)
+            {
+                foreach (var item in cart)
+                {
+                    item.DiscountPct = pct;
+                    item.TotalPrice = item.UnitPrice * item.Quantity * (1 - pct / 100.0);
+                }
+                RefreshCart();
+            }
+        }
+
+        private void btnPrint_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) { MessageBox.Show("Cart is empty!"); return; }
+            PrintReceipt(0, _currentTotal);
+        }
+
+        private void btnQuickPay_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) { MessageBox.Show("Cart is empty!"); return; }
+            int saleId = SaveSaleToDb("Cash");
+            PrintReceipt(saleId, _currentTotal);
+            ResetSale();
+        }
+
+        private void btnPay_Click(object sender, RoutedEventArgs e)
+        {
+            if (cart.Count == 0) { MessageBox.Show("Cart is empty!"); return; }
+
+            var payWin = new PaymentWindow(_currentTotal);
+            payWin.Owner = this;
+            bool? result = payWin.ShowDialog();
+
+            if (result == true)
+            {
+                int saleId = SaveSaleToDb(payWin.PaymentMethod,
+                    payWin.CashPaid, payWin.CardPaid, payWin.ChangeDue);
+                PrintReceipt(saleId, _currentTotal);
+                ResetSale();
+
+                if (payWin.ChangeDue > 0)
+                    MessageBox.Show($"💵 Give change: LBP {payWin.ChangeDue:N0}",
+                        "Change Due", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        int SaveSaleToDb(string method,
+            double cash = 0, double card = 0, double change = 0)
+        {
+            int saleId = 0;
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var cmd = new SQLiteCommand(
+                    @"INSERT INTO Sales
+                        (Date,TotalAmount,CashPaid,CardPaid,ChangeDue,PaymentMethod)
+                      VALUES (@d,@t,@ca,@cr,@ch,@m)", con);
+                cmd.Parameters.AddWithValue("@d", DateTime.Now.ToString());
+                cmd.Parameters.AddWithValue("@t", _currentTotal);
+                cmd.Parameters.AddWithValue("@ca", cash);
+                cmd.Parameters.AddWithValue("@cr", card);
+                cmd.Parameters.AddWithValue("@ch", change);
+                cmd.Parameters.AddWithValue("@m", method);
+                cmd.ExecuteNonQuery();
+
+                saleId = Convert.ToInt32(
+                    new SQLiteCommand("SELECT last_insert_rowid()", con).ExecuteScalar());
+
+                foreach (var item in cart)
+                {
+                    var iCmd = new SQLiteCommand(
+                        "INSERT INTO SaleItems(SaleId,ProductId,Quantity,Price) " +
+                        "VALUES(@s,@p,@q,@pr)", con);
+                    iCmd.Parameters.AddWithValue("@s", saleId);
+                    iCmd.Parameters.AddWithValue("@p", item.ProductId);
+                    iCmd.Parameters.AddWithValue("@q", item.Quantity);
+                    iCmd.Parameters.AddWithValue("@pr", item.TotalPrice);
+                    iCmd.ExecuteNonQuery();
+
+                    new SQLiteCommand(
+                        $"UPDATE Products SET Stock=Stock-{item.Quantity} WHERE Id={item.ProductId}",
+                        con).ExecuteNonQuery();
+                }
+            }
+            return saleId;
+        }
+
+        void PrintReceipt(int saleId, double total)
+        {
+            var items = new List<ReceiptItem>();
+            foreach (var c in cart)
+                items.Add(new ReceiptItem
+                { Name = c.ProductName, Quantity = c.Quantity, Price = c.TotalPrice });
+
+            var sale = new Sale { Id = saleId, Date = DateTime.Now.ToString(), TotalAmount = total };
+            var receipt = new ReceiptWindow();
+            receipt.LoadReceipt(sale, items);
+            receipt.Show();
+            receipt.Activate();
+        }
+
+        void ResetSale()
+        {
+            cart.Clear();
+            totalDiscount = 0;
+            _currentTotal = 0;
+            RefreshCart();
+            LoadInvoiceNumber();
+        }
+
+        private void btnFastMode_Click(object sender, RoutedEventArgs e)
+            => new FastSalesWindow().Show();
+    }
+}

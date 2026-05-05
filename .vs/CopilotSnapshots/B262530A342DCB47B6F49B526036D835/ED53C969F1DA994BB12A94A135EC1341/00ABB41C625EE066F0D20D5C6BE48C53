@@ -1,0 +1,163 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Data.SQLite;
+using System.Windows;
+using System.Windows.Data;
+using POSSystem.Database;
+
+namespace POSSystem.Windows
+{
+    public partial class PurchaseOrdersWindow : Window
+    {
+        private ObservableCollection<PurchaseOrder> allOrders = new ObservableCollection<PurchaseOrder>();
+        private string currentFilter = "All";
+        private CollectionViewSource viewSource;
+
+        public PurchaseOrdersWindow()
+        {
+            InitializeComponent();
+            InitializeWindow();
+        }
+
+        private void InitializeWindow()
+        {
+            viewSource = new CollectionViewSource { Source = allOrders };
+            viewSource.Filter += (s, e) =>
+            {
+                var order = e.Item as PurchaseOrder;
+                if (order == null)
+                {
+                    e.Accepted = false;
+                    return;
+                }
+
+                if (currentFilter == "All" || order.Status == currentFilter)
+                {
+                    e.Accepted = true;
+                }
+                else
+                {
+                    e.Accepted = false;
+                }
+            };
+
+            lvOrders.ItemsSource = viewSource.View;
+            LoadOrders();
+        }
+
+        private void LoadOrders()
+        {
+            allOrders.Clear();
+
+            try
+            {
+                using (SQLiteConnection con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+                {
+                    con.Open();
+
+                    string query = @"
+                        SELECT 
+                            Id, 
+                            SupplierId,
+                            (SELECT Name FROM Suppliers WHERE Id = SupplierId) as SupplierName,
+                            OrderDate, 
+                            Status,
+                            Notes
+                        FROM PurchaseOrders
+                        ORDER BY OrderDate DESC";
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(query, con))
+                    {
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var order = new PurchaseOrder
+                                {
+                                    OrderId = reader["Id"].ToString(),
+                                    SupplierName = reader["SupplierName"].ToString(),
+                                    OrderDate = DateTime.TryParse(reader["OrderDate"].ToString(), out var date) ? date : DateTime.Now,
+                                    Status = reader["Status"].ToString()
+                                };
+
+                                allOrders.Add(order);
+                            }
+                        }
+                    }
+                }
+
+                ApplyFilter();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading orders: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string GetStatusColor(string status)
+        {
+            if (status == "Received")
+                return "#2E7D32";
+            else if (status == "Cancelled")
+                return "#B71C1C";
+            else
+                return "#E65100";
+        }
+
+        private void btnSuppliers_Click(object sender, RoutedEventArgs e)
+        {
+            SuppliersWindow supplier = new SuppliersWindow();
+            supplier.ShowDialog();
+        }
+
+        private void btnNewOrder_Click(object sender, RoutedEventArgs e)
+        {
+            NewOrderWindow newOrder = new NewOrderWindow();
+            newOrder.ShowDialog();
+            LoadOrders(); // Refresh list after creating new order
+        }
+
+        private void btnExportPdf_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Implement PDF export functionality
+            MessageBox.Show("PDF export feature coming soon", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnFilterPending_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Pending";
+            ApplyFilter();
+        }
+
+        private void btnFilterReceived_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Received";
+            ApplyFilter();
+        }
+
+        private void btnFilterCancelled_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Cancelled";
+            ApplyFilter();
+        }
+
+        private void btnFilterAll_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "All";
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            if (viewSource != null)
+            {
+                viewSource.View.Refresh();
+            }
+        }
+    }
+}

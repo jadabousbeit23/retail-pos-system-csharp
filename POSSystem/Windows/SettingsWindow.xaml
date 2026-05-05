@@ -1,0 +1,718 @@
+<Window x:Class="POSSystem.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings"
+        Height="720" Width="780"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#F0F0F0">
+
+    <!--
+    ═══════════════════════════════════════════════════════════
+      CLASSIC WINDOWS LIGHT THEME  — softer, airier palette
+        Page bg       : #F0F0F0  (standard Win dialog gray)
+        Surface       : #FAFAFA
+        Button face   : #FDFDFD → #E8E8E8
+        Button hover  : #EEF4FF → #D0DFFA
+        Button press  : #D8D8D8 → #E4E4E4
+        Bevel outer   : #B8B8B8
+        Bevel hi      : #FFFFFF / shadow #A0A0A0
+        Header        : soft sky-blue gradient
+        Edit border   : #99AABB / inner #FFFFFF
+        Text primary  : #1A1A1A
+        Text muted    : #555555
+        Text subtle   : #888888
+        Accent blue   : #2B6CC4
+        Green total   : #1A7A1A
+        Amber disc    : #A0520A
+        Red error     : #B00000
+    ═══════════════════════════════════════════════════════════
+    -->
+
+    <Window.Resources>
+
+        <!-- Button face gradients -->
+        <LinearGradientBrush x:Key="BtnFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FDFDFD" Offset="0"/>
+            <GradientStop Color="#F2F2F2" Offset="0.5"/>
+            <GradientStop Color="#E8E8E8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EEF4FF" Offset="0"/>
+            <GradientStop Color="#DBE9FF" Offset="0.5"/>
+            <GradientStop Color="#C8DBFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D4D4D4" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Header — very soft sky blue -->
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E8F2FF" Offset="0"/>
+            <GradientStop Color="#C8DCFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Panel surface -->
+        <LinearGradientBrush x:Key="PanelBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FAFAFA" Offset="0"/>
+            <GradientStop Color="#F0F0F0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Bevel brush — top-left highlight / bottom-right shadow -->
+        <LinearGradientBrush x:Key="BevelNormal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.49"/>
+            <GradientStop Color="#A0A0A0" Offset="0.50"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BevelPress" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A0A0A0" Offset="0"/>
+            <GradientStop Color="#A0A0A0" Offset="0.49"/>
+            <GradientStop Color="#FFFFFF" Offset="0.50"/>
+            <GradientStop Color="#FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Save button — soft green -->
+        <LinearGradientBrush x:Key="SaveFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E0F5E0" Offset="0"/>
+            <GradientStop Color="#B0E0B0" Offset="0.5"/>
+            <GradientStop Color="#88CC88" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SaveHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EAFAEA" Offset="0"/>
+            <GradientStop Color="#C0EAC0" Offset="0.5"/>
+            <GradientStop Color="#98DC98" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SavePress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#70B870" Offset="0"/>
+            <GradientStop Color="#90CC90" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Close button — soft red -->
+        <LinearGradientBrush x:Key="CloseFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F5E0E0" Offset="0"/>
+            <GradientStop Color="#E0B0B0" Offset="0.5"/>
+            <GradientStop Color="#CC8888" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="CloseHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FAEAEA" Offset="0"/>
+            <GradientStop Color="#EAC0C0" Offset="0.5"/>
+            <GradientStop Color="#DC9898" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="ClosePress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#B87070" Offset="0"/>
+            <GradientStop Color="#CC9090" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Browse button — soft blue -->
+        <LinearGradientBrush x:Key="BrowseFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E0E8F5" Offset="0"/>
+            <GradientStop Color="#B0C8E0" Offset="0.5"/>
+            <GradientStop Color="#88A8D0" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="BrowseHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EAF0FA" Offset="0"/>
+            <GradientStop Color="#C0D8F0" Offset="0.5"/>
+            <GradientStop Color="#98B8E0" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="BrowsePress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#7090C0" Offset="0"/>
+            <GradientStop Color="#90B0D0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ── Raised 3-D bevel button ── -->
+        <Style x:Key="BigBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#B8B8B8" BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource BtnFace}"
+                                        CornerRadius="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="FaceBorder" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Save button style — green accent -->
+        <Style x:Key="SaveBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#1A3A1A"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#70AA70" BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource SaveFace}"
+                                        CornerRadius="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource SaveHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource SavePress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Close button style — red accent -->
+        <Style x:Key="CloseBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#3A1A1A"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#AA7070" BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource CloseFace}"
+                                        CornerRadius="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource CloseHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource ClosePress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Browse button style — blue accent -->
+        <Style x:Key="BrowseBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#1A1A3A"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#7090C0" BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource BrowseFace}"
+                                        CornerRadius="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BrowseHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BrowsePress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Section card -->
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="#FAFAFA"/>
+            <Setter Property="BorderBrush" Value="#C0C0C0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,14"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <!-- Field label -->
+        <Style x:Key="FieldLabel" TargetType="Label">
+            <Setter Property="Foreground" Value="#555555"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Text input border -->
+        <Style x:Key="InputBorder" TargetType="Border">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#99AABB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <!-- Text box inside input border -->
+        <Style x:Key="InputBox" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="CaretBrush" Value="#2B6CC4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Header -->
+            <RowDefinition Height="*"/>
+            <!-- Scrollable content -->
+            <RowDefinition Height="Auto"/>
+            <!-- Footer buttons -->
+        </Grid.RowDefinitions>
+
+        <!-- ══ HEADER ══ -->
+        <Border Grid.Row="0" Background="{StaticResource HeaderBrush}"
+                BorderBrush="#B8CCEE" BorderThickness="0,0,0,1"
+                Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <Label Content="⚙️  Settings"
+                           FontSize="20" FontWeight="Bold"
+                           Foreground="#2B6CC4" Padding="0"
+                           FontFamily="Segoe UI, Tahoma"/>
+                    <Label Content="Configure store info, receipts and system preferences"
+                           FontSize="11" Foreground="#555555" Padding="0"
+                           FontFamily="Segoe UI, Tahoma"/>
+                </StackPanel>
+                <Label Grid.Column="1"
+                       x:Name="lblSaved"
+                       Content=""
+                       Foreground="#1A7A1A" FontSize="13"
+                       FontWeight="Bold"
+                       VerticalContentAlignment="Center"
+                       Padding="0"
+                       FontFamily="Segoe UI, Tahoma"/>
+            </Grid>
+        </Border>
+
+        <!-- ══ SCROLLABLE CONTENT ══ -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="16,12,16,4">
+            <StackPanel>
+
+                <!-- ── STORE INFO ── -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Label Content="🏪  STORE INFORMATION"
+                               Foreground="#2B6CC4" FontSize="12"
+                               FontWeight="Bold" Padding="0"
+                               Margin="0,0,0,12"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Store Name -->
+                            <StackPanel Grid.Column="0">
+                                <Label Content="STORE NAME"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtStoreName"
+                                                 Style="{StaticResource InputBox}"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Phone -->
+                            <StackPanel Grid.Column="2">
+                                <Label Content="PHONE"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtPhone"
+                                                 Style="{StaticResource InputBox}"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Address -->
+                            <StackPanel Grid.Column="0">
+                                <Label Content="ADDRESS"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtAddress"
+                                                 Style="{StaticResource InputBox}"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Email -->
+                            <StackPanel Grid.Column="2">
+                                <Label Content="EMAIL"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtEmail"
+                                                 Style="{StaticResource InputBox}"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── RECEIPT ── -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Label Content="🧾  RECEIPT"
+                               Foreground="#2B6CC4" FontSize="12"
+                               FontWeight="Bold" Padding="0"
+                               Margin="0,0,0,12"
+                               FontFamily="Segoe UI, Tahoma"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Receipt Header -->
+                            <StackPanel Grid.Column="0">
+                                <Label Content="RECEIPT HEADER"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtReceiptHeader"
+                                                 Style="{StaticResource InputBox}"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Receipt Footer -->
+                            <StackPanel Grid.Column="2">
+                                <Label Content="RECEIPT FOOTER"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtReceiptFooter"
+                                                 Style="{StaticResource InputBox}"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── TAX ── -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Label Content="💰  TAX"
+                               Foreground="#2B6CC4" FontSize="12"
+                               FontWeight="Bold" Padding="0"
+                               Margin="0,0,0,12"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <CheckBox x:Name="chkTaxEnabled"
+                                          Foreground="#1A1A1A"
+                                          FontSize="13"
+                                          VerticalContentAlignment="Center"
+                                          Checked="chkTaxEnabled_Changed"
+                                          Unchecked="chkTaxEnabled_Changed"/>
+                                <Label Content="Enable Tax"
+                                       Foreground="#1A1A1A"
+                                       FontSize="13" Padding="6,0,0,0"
+                                       VerticalContentAlignment="Center"
+                                       FontFamily="Segoe UI, Tahoma"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <Label Content="TAX %"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}"
+                                        x:Name="borderTaxPct">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtTaxPct"
+                                                 Style="{StaticResource InputBox}"
+                                                 Text="0"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+
+                            <Label Grid.Column="3"
+                                   x:Name="lblTaxNote"
+                                   Content="Tax will be added on top of product prices at checkout."
+                                   Foreground="#888888" FontSize="11"
+                                   VerticalContentAlignment="Bottom"
+                                   Padding="12,0,0,8"
+                                   FontFamily="Segoe UI, Tahoma"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── SYSTEM ── -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Label Content="🔧  SYSTEM"
+                               Foreground="#2B6CC4" FontSize="12"
+                               FontWeight="Bold" Padding="0"
+                               Margin="0,0,0,12"
+                               FontFamily="Segoe UI, Tahoma"/>
+
+                        <!-- First row: Currency, Exchange Rate, Low Stock -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Currency -->
+                            <StackPanel Grid.Column="0">
+                                <Label Content="CURRENCY SYMBOL"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtCurrency"
+                                                 Style="{StaticResource InputBox}"
+                                                 Text="LBP"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Exchange Rate (NEW FIELD) -->
+                            <StackPanel Grid.Column="2">
+                                <Label Content="EXCHANGE RATE (LBP per 1 USD)"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtExchangeRate"
+                                                 Style="{StaticResource InputBox}"
+                                                 Text="90000"
+                                                 TextChanged="txtExchangeRate_TextChanged"/>
+                                    </Border>
+                                </Border>
+                                <Label x:Name="lblRatePreview"
+                                       Content="Example: $10 = 900,000 LBP"
+                                       Foreground="#888888" FontSize="10"
+                                       Padding="0" Margin="0,4,0,0"
+                                       FontFamily="Segoe UI, Tahoma"/>
+                            </StackPanel>
+
+                            <!-- Low Stock Threshold -->
+                            <StackPanel Grid.Column="4">
+                                <Label Content="LOW STOCK ALERT THRESHOLD"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtLowStock"
+                                                 Style="{StaticResource InputBox}"
+                                                 Text="5"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Second row: Printer -->
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <Label Content="RECEIPT PRINTER NAME"
+                                       Style="{StaticResource FieldLabel}"/>
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                        <TextBox x:Name="txtPrinter"
+                                                 Style="{StaticResource InputBox}"
+                                                 ToolTip="Leave blank to use default printer"/>
+                                    </Border>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── LOGO PATH ── -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Label Content="🖼️  LOGO"
+                               Foreground="#2B6CC4" FontSize="12"
+                               FontWeight="Bold" Padding="0"
+                               Margin="0,0,0,12"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource InputBorder}">
+                                <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                    <TextBox x:Name="txtLogoPath"
+                                             Style="{StaticResource InputBox}"
+                                             IsReadOnly="True"
+                                             ToolTip="Path to logo image (PNG/JPG)"/>
+                                </Border>
+                            </Border>
+                            <Button Grid.Column="2"
+                                    Content="📂  Browse"
+                                    Height="36" Padding="14,0"
+                                    Style="{StaticResource BrowseBtn}"
+                                    Click="btnBrowseLogo_Click"/>
+                        </Grid>
+                        <Label x:Name="lblLogoPreview"
+                               Content="No logo selected"
+                               Foreground="#888888" FontSize="11"
+                               Padding="0" Margin="0,6,0,0"
+                               FontFamily="Segoe UI, Tahoma"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ══ FOOTER BUTTONS ══ -->
+        <Border Grid.Row="2" Background="{StaticResource PanelBrush}"
+                BorderBrush="#D0D0D0" BorderThickness="0,1,0,0"
+                Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0"
+                       x:Name="lblStatus"
+                       Content=""
+                       Foreground="#1A7A1A" FontSize="12"
+                       FontWeight="Bold"
+                       VerticalContentAlignment="Center"
+                       Padding="0"
+                       FontFamily="Segoe UI, Tahoma"/>
+
+                <Button Grid.Column="1"
+                        Content="💾  Save Settings"
+                        Height="42"
+                        Style="{StaticResource SaveBtn}"
+                        Click="btnSave_Click"/>
+
+                <Button Grid.Column="3"
+                        Content="✕  Close"
+                        Height="42"
+                        Style="{StaticResource CloseBtn}"
+                        Click="btnClose_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

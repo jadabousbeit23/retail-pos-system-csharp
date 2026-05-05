@@ -1,0 +1,388 @@
+<Window x:Class="POSSystem.Windows.ReturnsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Returns &amp; Refunds"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F0F0">
+
+    <Window.Resources>
+        <!-- Button face gradients -->
+        <LinearGradientBrush x:Key="BtnFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FDFDFD" Offset="0"/>
+            <GradientStop Color="#F2F2F2" Offset="0.5"/>
+            <GradientStop Color="#E8E8E8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EEF4FF" Offset="0"/>
+            <GradientStop Color="#DBE9FF" Offset="0.5"/>
+            <GradientStop Color="#C8DBFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D4D4D4" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Header -->
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E8F2FF" Offset="0"/>
+            <GradientStop Color="#C8DCFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Bevel brush -->
+        <LinearGradientBrush x:Key="BevelNormal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.49"/>
+            <GradientStop Color="#A0A0A0" Offset="0.50"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BevelPress" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A0A0A0" Offset="0"/>
+            <GradientStop Color="#A0A0A0" Offset="0.49"/>
+            <GradientStop Color="#FFFFFF" Offset="0.50"/>
+            <GradientStop Color="#FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ListView rows -->
+        <Style TargetType="ListViewItem">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#EBEBEB"/>
+            <Setter Property="Padding" Value="4,5"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EEF4FF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#C8DBFA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 3D Bevel Button -->
+        <Style x:Key="BigBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#B8B8B8" BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource BtnFace}"
+                                        CornerRadius="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="FaceBorder" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox style -->
+        <Style x:Key="LightCombo" TargetType="ComboBox">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="BorderBrush" Value="#99AABB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#F0F0F0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource HeaderBrush}"
+                BorderBrush="#B8CCEE" BorderThickness="0,0,0,1"
+                Padding="20,15" Margin="20,20,20,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="🔄  Returns &amp; Refunds"
+                       FontSize="22" FontWeight="Bold"
+                       Foreground="#2B6CC4" Padding="0"
+                       FontFamily="Segoe UI, Tahoma"/>
+                <Button Grid.Column="1" Content="📋 View History"
+                        Width="140" Height="36"
+                        Style="{StaticResource BigBtn}"
+                        Click="btnViewHistory_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- Search -->
+        <Border Grid.Row="1" Background="#FAFAFA"
+                BorderBrush="#D0D0D0" BorderThickness="1"
+                Padding="14,12" Margin="20,0,20,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Content="Invoice #:"
+                       Foreground="#555555" FontWeight="Bold" FontSize="13"
+                       VerticalContentAlignment="Center" Padding="0" Margin="0,0,8,0"
+                       FontFamily="Segoe UI, Tahoma"/>
+                <Border Grid.Column="1" BorderBrush="#99AABB" BorderThickness="1">
+                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                        <TextBox x:Name="txtInvoiceSearch" Background="#FFFFFF"
+                                 Foreground="#1A1A1A" BorderThickness="0"
+                                 FontSize="14" FontWeight="Bold"
+                                 Padding="8,6" CaretBrush="#2B6CC4"
+                                 FontFamily="Segoe UI, Tahoma"/>
+                    </Border>
+                </Border>
+                <Button Grid.Column="2" Content="🔍 Search"
+                        Width="100" Height="34" Margin="8,0,0,0"
+                        Style="{StaticResource BigBtn}"
+                        Click="btnSearchSale_Click"/>
+                <Label Grid.Column="3" x:Name="lblSaleInfo"
+                       Content="— Search for a sale to process return —"
+                       Foreground="#888888" FontSize="12"
+                       Margin="16,0,0,0" VerticalContentAlignment="Center"
+                       FontFamily="Segoe UI, Tahoma"/>
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Label Content="Reason:" Foreground="#555555"
+                           FontWeight="Bold" FontSize="12"
+                           Padding="0,0,8,0" VerticalContentAlignment="Center"
+                           FontFamily="Segoe UI, Tahoma"/>
+                    <ComboBox x:Name="cmbReturnReason" Style="{StaticResource LightCombo}"
+                              Width="210" Height="34" SelectedIndex="0">
+                        <ComboBoxItem Content="Damaged / Defective"/>
+                        <ComboBoxItem Content="Wrong item"/>
+                        <ComboBoxItem Content="Customer changed mind"/>
+                        <ComboBoxItem Content="Expired product"/>
+                        <ComboBoxItem Content="Overcharged"/>
+                        <ComboBoxItem Content="Other"/>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main -->
+        <Grid Grid.Row="2" Margin="20,0,20,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="340"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Sale Items -->
+            <Border Grid.Column="0" Background="#FFFFFF"
+                    BorderBrush="#C0C0C0" BorderThickness="1"
+                    Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="#F4F4F4"
+                            BorderBrush="#D0D0D0" BorderThickness="0,0,0,1"
+                            Padding="10,8">
+                        <Label Content="📦  SALE ITEMS — check items to return"
+                               Foreground="#555555" FontSize="12"
+                               FontWeight="Bold" Padding="0"
+                               FontFamily="Segoe UI, Tahoma"/>
+                    </Border>
+                    <ListView Grid.Row="1" x:Name="lvSaleItems"
+                              Background="#FFFFFF" BorderThickness="0"
+                              FontFamily="Segoe UI, Tahoma" Margin="4">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style TargetType="GridViewColumnHeader">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Width="36">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                      Checked="chkItem_Changed"
+                                                      Unchecked="chkItem_Changed"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Width="190" DisplayMemberBinding="{Binding ProductName}"/>
+                                <GridViewColumn Width="60" DisplayMemberBinding="{Binding Quantity}"/>
+                                <GridViewColumn Width="110" DisplayMemberBinding="{Binding UnitPriceDisplay}"/>
+                                <GridViewColumn Width="120" DisplayMemberBinding="{Binding TotalDisplay}"/>
+                                <GridViewColumn Width="110">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="Ret:" Foreground="#888888"
+                                                       FontSize="11" Padding="0,0,4,0"
+                                                       VerticalContentAlignment="Center"
+                                                       FontFamily="Segoe UI, Tahoma"/>
+                                                <Border BorderBrush="#99AABB" BorderThickness="1" Width="55">
+                                                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                                        <TextBox Text="{Binding ReturnQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Background="#FFFFFF" Foreground="#1A1A1A"
+                                                                 BorderThickness="0" FontSize="12" Padding="4,3"
+                                                                 TextChanged="returnQty_Changed"
+                                                                 FontFamily="Segoe UI, Tahoma"/>
+                                                    </Border>
+                                                </Border>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <!-- Return Summary -->
+            <Border Grid.Column="1" Background="#FAFAFA"
+                    BorderBrush="#D0D0D0" BorderThickness="1"
+                    Padding="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="RETURN SUMMARY"
+                           Foreground="#2B6CC4" FontSize="14"
+                           FontWeight="Bold" Padding="0" Margin="0,0,0,12"
+                           FontFamily="Segoe UI, Tahoma"/>
+
+                    <Border Grid.Row="1" Background="#FFFFFF"
+                            BorderBrush="#D0D0D0" BorderThickness="1"
+                            Padding="12,8" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Items to return:"
+                                   Foreground="#555555" FontSize="12" Padding="0"
+                                   FontFamily="Segoe UI, Tahoma"/>
+                            <Label Grid.Column="1" x:Name="lblReturnItems"
+                                   Content="0" Foreground="#1A1A1A"
+                                   FontSize="14" FontWeight="Bold" Padding="0"
+                                   FontFamily="Segoe UI, Tahoma"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="2" Background="#E8F2FF"
+                            BorderBrush="#B8CCEE" BorderThickness="1"
+                            Padding="12,10" Margin="0,0,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="REFUND:" Foreground="#1A1A1A"
+                                   FontSize="13" FontWeight="Bold" Padding="0"
+                                   FontFamily="Segoe UI, Tahoma"/>
+                            <Label Grid.Column="1" x:Name="lblRefundAmount"
+                                   Content="LBP 0" Foreground="#1A1A1A"
+                                   FontSize="20" FontWeight="Bold" Padding="0"
+                                   FontFamily="Segoe UI, Tahoma"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="3" Margin="0,0,0,12">
+                        <Label Content="RETURN TYPE" Foreground="#555555"
+                               FontSize="11" FontWeight="Bold" Padding="0,0,0,6"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <RadioButton x:Name="rbRefund"
+                                     Content="  💵 Refund (cash back)"
+                                     GroupName="returnType" IsChecked="True"
+                                     Foreground="#1A1A1A" FontWeight="Bold"
+                                     FontSize="13" Margin="0,0,0,8"
+                                     FontFamily="Segoe UI, Tahoma"/>
+                        <RadioButton x:Name="rbExchange"
+                                     Content="  🔄 Exchange (replace item)"
+                                     GroupName="returnType"
+                                     Foreground="#1A1A1A" FontWeight="Bold"
+                                     FontSize="13" Margin="0,0,0,8"
+                                     FontFamily="Segoe UI, Tahoma"/>
+                        <RadioButton x:Name="rbStoreCredit"
+                                     Content="  🎫 Store credit"
+                                     GroupName="returnType"
+                                     Foreground="#1A1A1A" FontWeight="Bold"
+                                     FontSize="13"
+                                     FontFamily="Segoe UI, Tahoma"/>
+                        <CheckBox x:Name="chkRestock"
+                                  Content="  Restock returned items"
+                                  IsChecked="True" Foreground="#1A1A1A"
+                                  FontSize="12" Margin="0,12,0,0"
+                                  FontFamily="Segoe UI, Tahoma"/>
+                    </StackPanel>
+
+                    <Label Grid.Row="4" x:Name="lblMessage"
+                           Content="" FontSize="11" FontWeight="Bold"
+                           Padding="0" Margin="0,0,0,8" MinHeight="16"
+                           FontFamily="Segoe UI, Tahoma"/>
+
+                    <Button Grid.Row="5" Content="✅  PROCESS RETURN"
+                            Height="46" Margin="0,0,0,8"
+                            Style="{StaticResource BigBtn}"
+                            Click="btnProcessReturn_Click"/>
+
+                    <Button Grid.Row="6" Content="✕  Close"
+                            Height="36"
+                            Style="{StaticResource BigBtn}"
+                            Click="btnClose_Click"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Label Grid.Row="3"
+               Content="💡 Search invoice → check items → choose type → Process Return"
+               Foreground="#888888" FontSize="11" Margin="20,0,20,10"
+               FontFamily="Segoe UI, Tahoma"/>
+    </Grid>
+</Window>

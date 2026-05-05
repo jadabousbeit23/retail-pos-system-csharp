@@ -1,0 +1,133 @@
+﻿using POSSystem.Database;
+using System;
+using System.Data.SQLite;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace POSSystem.Windows
+{
+    public partial class PurchaseOrdersWindow : Window
+    {
+        string _currentFilter = "All";
+
+        public PurchaseOrdersWindow()
+        {
+            InitializeComponent();
+            LoadOrders();
+        }
+
+        // ══════════════════════════════════════════════
+        // LOAD ORDERS
+        // ══════════════════════════════════════════════
+        void LoadOrders(string filter = "All", string search = "")
+        {
+            lvOrders.Items.Clear();
+            ClearDetail();
+
+            string where = "WHERE 1=1 ";
+            if (filter != "All")
+                where += $"AND PurchaseOrders.Status = '{filter}' ";
+            if (!string.IsNullOrEmpty(search))
+                where += $"AND (Suppliers.Name LIKE '%{search}%' " +
+                         $"OR PurchaseOrders.Notes LIKE '%{search}%') ";
+
+            try
+            {
+                using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+                {
+                    con.Open();
+                    string sql = @"
+                        SELECT PurchaseOrders.*,
+                               Suppliers.Name AS SupplierName,
+                               COUNT(PurchaseOrderItems.Id) AS ItemCount
+                        FROM PurchaseOrders
+                        JOIN Suppliers ON PurchaseOrders.SupplierId = Suppliers.Id
+                        LEFT JOIN PurchaseOrderItems ON
+                            PurchaseOrderItems.PurchaseOrderId = PurchaseOrders.Id
+                        " + where + @"
+                        GROUP BY PurchaseOrders.Id
+                        ORDER BY PurchaseOrders.Id DESC";
+
+                    var r = new SQLiteCommand(sql, con).ExecuteReader();
+                    int count = 0;
+                    while (r.Read())
+                    {
+                        lvOrders.Items.Add(new PurchaseOrder
+                        {
+                            Id           = Convert.ToInt32(r["Id"]),
+                            SupplierId   = Convert.ToInt32(r["SupplierId"]),
+                            SupplierName = r["SupplierName"].ToString(),
+                            OrderDate    = r["OrderDate"].ToString(),
+                            ReceivedDate = r["ReceivedDate"].ToString(),
+                            Status       = r["Status"].ToString(),
+                            Notes        = r["Notes"].ToString(),
+                            ItemCount    = Convert.ToInt32(r["ItemCount"])
+                        });
+                        count++;
+                    }
+                    r.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading orders: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        void ClearDetail()
+        {
+            // Placeholder for clearing details if needed
+        }
+
+        // ══════════════════════════════════════════════
+        // NEW ORDER
+        // ══════════════════════════════════════════════
+        private void btnNewOrder_Click(object sender, RoutedEventArgs e)
+        {
+            new NewOrderWindow().ShowDialog();
+            LoadOrders(_currentFilter, txtSearch?.Text?.Trim() ?? "");
+        }
+
+        // ══════════════════════════════════════════════
+        // EXPORT PDF
+        // ══════════════════════════════════════════════
+        private void btnExportPdf_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvOrders.SelectedItem == null)
+            {
+                MessageBox.Show("⚠️ Select an order to export!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var o = (PurchaseOrder)lvOrders.SelectedItem;
+            MessageBox.Show("PDF export feature coming soon", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        // ══════════════════════════════════════════════
+        // SUPPLIERS
+        // ══════════════════════════════════════════════
+        private void btnSuppliers_Click(object sender, RoutedEventArgs e)
+            => new SuppliersWindow().ShowDialog();
+
+        // ══════════════════════════════════════════════
+        // FILTER
+        // ══════════════════════════════════════════════
+        private void btnFilterPending_Click(object sender, RoutedEventArgs e)
+        { _currentFilter = "Pending";   LoadOrders("Pending",   txtSearch.Text.Trim()); }
+
+        private void btnFilterReceived_Click(object sender, RoutedEventArgs e)
+        { _currentFilter = "Received";  LoadOrders("Received",  txtSearch.Text.Trim()); }
+
+        private void btnFilterCancelled_Click(object sender, RoutedEventArgs e)
+        { _currentFilter = "Cancelled"; LoadOrders("Cancelled", txtSearch.Text.Trim()); }
+
+        private void btnFilterAll_Click(object sender, RoutedEventArgs e)
+        { _currentFilter = "All";       LoadOrders("All",       txtSearch.Text.Trim()); }
+
+        private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
+            => LoadOrders(_currentFilter, txtSearch.Text.Trim());
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+            => this.Close();
+    }
+}

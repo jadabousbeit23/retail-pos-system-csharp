@@ -1,0 +1,500 @@
+﻿<Window x:Class="POSSystem.Windows.SuppliersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Suppliers" Height="580" Width="680"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#F0F0F0">
+
+    <!--
+    ═══════════════════════════════════════════════════════════
+      CLASSIC WINDOWS LIGHT THEME
+        Page bg       : #F0F0F0
+        Surface       : #FAFAFA
+        Button face   : #FDFDFD → #E8E8E8
+        Button hover  : #EEF4FF → #D0DFFA
+        Button press  : #D8D8D8 → #E4E4E4
+        Bevel outer   : #B8B8B8
+        Bevel hi      : #FFFFFF / shadow #A0A0A0
+        Header        : soft sky-blue gradient
+        Edit border   : #99AABB / inner #FFFFFF
+        Text primary  : #1A1A1A
+        Text muted    : #555555
+        Text subtle   : #888888
+        Accent blue   : #2B6CC4
+        Green total   : #1A7A1A
+        Amber disc    : #A0520A
+        Red delete    : #B00000
+    ═══════════════════════════════════════════════════════════
+    -->
+
+    <Window.Resources>
+
+        <!-- Header — very soft sky blue -->
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E8F2FF" Offset="0"/>
+            <GradientStop Color="#C8DCFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Column header -->
+        <LinearGradientBrush x:Key="ColHeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F8F8F8" Offset="0"/>
+            <GradientStop Color="#E4E4E4" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Bevel brush — top-left highlight / bottom-right shadow -->
+        <LinearGradientBrush x:Key="BevelNormal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.49"/>
+            <GradientStop Color="#A0A0A0" Offset="0.50"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Button face gradients -->
+        <LinearGradientBrush x:Key="BtnFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FDFDFD" Offset="0"/>
+            <GradientStop Color="#F2F2F2" Offset="0.5"/>
+            <GradientStop Color="#E8E8E8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EEF4FF" Offset="0"/>
+            <GradientStop Color="#DBE9FF" Offset="0.5"/>
+            <GradientStop Color="#C8DBFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D4D4D4" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Green button face -->
+        <LinearGradientBrush x:Key="GreenFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E0F5E0" Offset="0"/>
+            <GradientStop Color="#B0E0B0" Offset="0.5"/>
+            <GradientStop Color="#88CC88" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="GreenHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EAFAEA" Offset="0"/>
+            <GradientStop Color="#C0EAC0" Offset="0.5"/>
+            <GradientStop Color="#98DC98" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="GreenPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#70B870" Offset="0"/>
+            <GradientStop Color="#90CC90" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Amber button face -->
+        <LinearGradientBrush x:Key="AmberFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFF8E8" Offset="0"/>
+            <GradientStop Color="#F0E0B0" Offset="0.5"/>
+            <GradientStop Color="#E8D090" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AmberHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFFCF0" Offset="0"/>
+            <GradientStop Color="#F8ECD0" Offset="0.5"/>
+            <GradientStop Color="#F0E0A8" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AmberPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D0B060" Offset="0"/>
+            <GradientStop Color="#E0C880" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Red button face -->
+        <LinearGradientBrush x:Key="RedFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFE0E0" Offset="0"/>
+            <GradientStop Color="#F0B0B0" Offset="0.5"/>
+            <GradientStop Color="#E88888" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="RedHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFF0F0" Offset="0"/>
+            <GradientStop Color="#F8C0C0" Offset="0.5"/>
+            <GradientStop Color="#F09898" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="RedPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D07070" Offset="0"/>
+            <GradientStop Color="#E09090" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Gray button face -->
+        <LinearGradientBrush x:Key="GrayFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F5F5F5" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="0.5"/>
+            <GradientStop Color="#D0D0D0" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="GrayHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FAFAFA" Offset="0"/>
+            <GradientStop Color="#E8E8E8" Offset="0.5"/>
+            <GradientStop Color="#D8D8D8" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="GrayPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#B0B0B0" Offset="0"/>
+            <GradientStop Color="#C0C0C0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ListView rows -->
+        <Style TargetType="ListViewItem">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#EBEBEB"/>
+            <Setter Property="Padding" Value="4,6"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EEF4FF"/>
+                    <Setter Property="Foreground" Value="#1A3A8A"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#C8DBFA"/>
+                    <Setter Property="Foreground" Value="#0A2060"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- GridViewColumnHeader style -->
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Background" Value="{StaticResource ColHeaderBrush}"/>
+            <Setter Property="Foreground" Value="#555555"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#C8C8C8"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid Background="#F0F0F0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource HeaderBrush}"
+                BorderBrush="#B8CCEE" BorderThickness="1"
+                Padding="15,12" Margin="20,20,20,12">
+            <Label Content="👥  Suppliers"
+                   FontSize="20" FontWeight="Bold"
+                   Foreground="#2B6CC4" FontFamily="Segoe UI, Tahoma" Padding="0"/>
+        </Border>
+
+        <!-- Form -->
+        <Border Grid.Row="1" Background="#FAFAFA"
+                BorderBrush="#C0C0C0" BorderThickness="1"
+                Padding="14" Margin="20,0,20,12">
+            <Border BorderBrush="{StaticResource BevelNormal}" BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <Label Content="SUPPLIER NAME"
+                               FontSize="10" Foreground="#888888"
+                               FontWeight="Bold" FontFamily="Segoe UI, Tahoma"
+                               Padding="0" Margin="0,0,0,4"/>
+                        <Border Background="#FFFFFF"
+                                BorderBrush="#99AABB" BorderThickness="1">
+                            <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                <TextBox x:Name="txtName"
+                                         Background="Transparent"
+                                         Foreground="#1A1A1A"
+                                         BorderThickness="0"
+                                         FontSize="13" FontFamily="Segoe UI, Tahoma" Padding="8,7"
+                                         CaretBrush="#2B6CC4"/>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                        <Label Content="PHONE"
+                               FontSize="10" Foreground="#888888"
+                               FontWeight="Bold" FontFamily="Segoe UI, Tahoma"
+                               Padding="0" Margin="0,0,0,4"/>
+                        <Border Background="#FFFFFF"
+                                BorderBrush="#99AABB" BorderThickness="1">
+                            <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                <TextBox x:Name="txtPhone"
+                                         Background="Transparent"
+                                         Foreground="#1A1A1A"
+                                         BorderThickness="0"
+                                         FontSize="13" FontFamily="Segoe UI, Tahoma" Padding="8,7"
+                                         CaretBrush="#2B6CC4"/>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <Label Content="EMAIL"
+                               FontSize="10" Foreground="#888888"
+                               FontWeight="Bold" FontFamily="Segoe UI, Tahoma"
+                               Padding="0" Margin="0,0,0,4"/>
+                        <Border Background="#FFFFFF"
+                                BorderBrush="#99AABB" BorderThickness="1">
+                            <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                <TextBox x:Name="txtEmail"
+                                         Background="Transparent"
+                                         Foreground="#1A1A1A"
+                                         BorderThickness="0"
+                                         FontSize="13" FontFamily="Segoe UI, Tahoma" Padding="8,7"
+                                         CaretBrush="#2B6CC4"/>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Border>
+
+        <!-- List -->
+        <Border Grid.Row="2" Background="#FFFFFF"
+                BorderBrush="#99AABB" BorderThickness="1"
+                Padding="5" Margin="20,0,20,12">
+            <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                <ListView x:Name="lvSuppliers"
+                          Background="#FFFFFF"
+                          Foreground="#1A1A1A"
+                          FontFamily="Segoe UI, Tahoma"
+                          BorderThickness="0"
+                          SelectionChanged="lvSuppliers_SelectionChanged">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="ID" Width="45"
+                                DisplayMemberBinding="{Binding Id}"/>
+                            <GridViewColumn Header="Name" Width="180"
+                                DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="Phone" Width="130"
+                                DisplayMemberBinding="{Binding Phone}"/>
+                            <GridViewColumn Header="Email" Width="200"
+                                DisplayMemberBinding="{Binding Email}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Border>
+        </Border>
+
+        <!-- Message -->
+        <Label Grid.Row="3" x:Name="lblMessage"
+               Content="" FontSize="12"
+               FontWeight="Bold" FontFamily="Segoe UI, Tahoma"
+               Padding="0" Margin="20,0,20,6"
+               MinHeight="18"
+               Foreground="#1A7A1A"/>
+
+        <!-- Buttons -->
+        <Grid Grid.Row="4" Margin="20,0,20,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Add Button - Green -->
+            <Button Grid.Column="0"
+                    Content="➕ Add"
+                    Height="40" Margin="0,0,6,0"
+                    Foreground="#1A3A1A"
+                    FontWeight="Bold"
+                    FontFamily="Segoe UI, Tahoma"
+                    Click="btnAdd_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#70AA70" BorderThickness="1" CornerRadius="3">
+                            <Border x:Name="InnerBorder" BorderThickness="1" CornerRadius="2">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#C8F0C8" Offset="0"/>
+                                        <GradientStop Color="#C8F0C8" Offset="0.49"/>
+                                        <GradientStop Color="#508050" Offset="0.50"/>
+                                        <GradientStop Color="#508050" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <Border x:Name="FaceBorder" CornerRadius="1" Padding="4"
+                                        Background="{StaticResource GreenFace}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource GreenHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource GreenPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#508050" Offset="0"/>
+                                            <GradientStop Color="#508050" Offset="0.49"/>
+                                            <GradientStop Color="#C8F0C8" Offset="0.50"/>
+                                            <GradientStop Color="#C8F0C8" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+            <!-- Update Button - Amber -->
+            <Button Grid.Column="1"
+                    Content="✏️ Update"
+                    Height="40" Margin="0,0,6,0"
+                    Foreground="#7A4A00"
+                    FontWeight="Bold"
+                    FontFamily="Segoe UI, Tahoma"
+                    Click="btnUpdate_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="3">
+                            <Border x:Name="InnerBorder" BorderThickness="1" CornerRadius="2">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#F0E0B0" Offset="0"/>
+                                        <GradientStop Color="#F0E0B0" Offset="0.49"/>
+                                        <GradientStop Color="#A08050" Offset="0.50"/>
+                                        <GradientStop Color="#A08050" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <Border x:Name="FaceBorder" CornerRadius="1" Padding="4"
+                                        Background="{StaticResource AmberFace}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource AmberHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource AmberPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#A08050" Offset="0"/>
+                                            <GradientStop Color="#A08050" Offset="0.49"/>
+                                            <GradientStop Color="#F0E0B0" Offset="0.50"/>
+                                            <GradientStop Color="#F0E0B0" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+            <!-- Delete Button - Red -->
+            <Button Grid.Column="2"
+                    Content="🗑️ Delete"
+                    Height="40" Margin="0,0,6,0"
+                    Foreground="#7A1A1A"
+                    FontWeight="Bold"
+                    FontFamily="Segoe UI, Tahoma"
+                    Click="btnDelete_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="3">
+                            <Border x:Name="InnerBorder" BorderThickness="1" CornerRadius="2">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#F0B0B0" Offset="0"/>
+                                        <GradientStop Color="#F0B0B0" Offset="0.49"/>
+                                        <GradientStop Color="#A05050" Offset="0.50"/>
+                                        <GradientStop Color="#A05050" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <Border x:Name="FaceBorder" CornerRadius="1" Padding="4"
+                                        Background="{StaticResource RedFace}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource RedHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource RedPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#A05050" Offset="0"/>
+                                            <GradientStop Color="#A05050" Offset="0.49"/>
+                                            <GradientStop Color="#F0B0B0" Offset="0.50"/>
+                                            <GradientStop Color="#F0B0B0" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+            <!-- Close Button - Gray -->
+            <Button Grid.Column="3"
+                    Content="✕ Close"
+                    Height="40"
+                    Foreground="#444444"
+                    FontWeight="Bold"
+                    FontFamily="Segoe UI, Tahoma"
+                    Click="btnClose_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="3">
+                            <Border x:Name="InnerBorder" BorderThickness="1" CornerRadius="2">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#FFFFFF" Offset="0"/>
+                                        <GradientStop Color="#FFFFFF" Offset="0.49"/>
+                                        <GradientStop Color="#A0A0A0" Offset="0.50"/>
+                                        <GradientStop Color="#A0A0A0" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <Border x:Name="FaceBorder" CornerRadius="1" Padding="4"
+                                        Background="{StaticResource GrayFace}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource GrayHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource GrayPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#A0A0A0" Offset="0"/>
+                                            <GradientStop Color="#A0A0A0" Offset="0.49"/>
+                                            <GradientStop Color="#FFFFFF" Offset="0.50"/>
+                                            <GradientStop Color="#FFFFFF" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

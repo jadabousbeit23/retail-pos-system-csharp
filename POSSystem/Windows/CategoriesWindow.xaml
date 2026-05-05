@@ -1,0 +1,518 @@
+﻿<Window x:Class="POSSystem.Windows.CategoriesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Categories Management"
+        Height="650" Width="750"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#F0F0F0">
+
+    <Window.Resources>
+        <!-- Button face gradients -->
+        <LinearGradientBrush x:Key="BtnFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FDFDFD" Offset="0"/>
+            <GradientStop Color="#F2F2F2" Offset="0.5"/>
+            <GradientStop Color="#E8E8E8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EEF4FF" Offset="0"/>
+            <GradientStop Color="#DBE9FF" Offset="0.5"/>
+            <GradientStop Color="#C8DBFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D4D4D4" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Header -->
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E8F2FF" Offset="0"/>
+            <GradientStop Color="#C8DCFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Bevel brush -->
+        <LinearGradientBrush x:Key="BevelNormal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.49"/>
+            <GradientStop Color="#A0A0A0" Offset="0.50"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BevelPress" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A0A0A0" Offset="0"/>
+            <GradientStop Color="#A0A0A0" Offset="0.49"/>
+            <GradientStop Color="#FFFFFF" Offset="0.50"/>
+            <GradientStop Color="#FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Save button - Green -->
+        <LinearGradientBrush x:Key="SaveFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E8F5E9" Offset="0"/>
+            <GradientStop Color="#C8E6C9" Offset="0.5"/>
+            <GradientStop Color="#A5D6A7" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="SaveHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#C8E6C9" Offset="0"/>
+            <GradientStop Color="#A5D6A7" Offset="0.5"/>
+            <GradientStop Color="#81C784" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Delete button - Red -->
+        <LinearGradientBrush x:Key="DeleteFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFEBEE" Offset="0"/>
+            <GradientStop Color="#FFCDD2" Offset="0.5"/>
+            <GradientStop Color="#EF9A9A" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="DeleteHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFCDD2" Offset="0"/>
+            <GradientStop Color="#EF9A9A" Offset="0.5"/>
+            <GradientStop Color="#E57373" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- 3D Bevel Button -->
+        <Style x:Key="BigBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder" BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="3">
+                            <Border x:Name="InnerBorder" BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder" Background="{StaticResource BtnFace}" CornerRadius="1" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Save Button Style -->
+        <Style x:Key="SaveBtn" TargetType="Button" BasedOn="{StaticResource BigBtn}">
+            <Setter Property="Foreground" Value="#1B5E20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder" BorderBrush="#4CAF50" BorderThickness="1" CornerRadius="3">
+                            <Border x:Name="InnerBorder" BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder" Background="{StaticResource SaveFace}" CornerRadius="1" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource SaveHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#2E7D32"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Delete Button Style -->
+        <Style x:Key="DeleteBtn" TargetType="Button" BasedOn="{StaticResource BigBtn}">
+            <Setter Property="Foreground" Value="#B71C1C"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder" BorderBrush="#E57373" BorderThickness="1" CornerRadius="3">
+                            <Border x:Name="InnerBorder" BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder" Background="{StaticResource DeleteFace}" CornerRadius="1" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource DeleteHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#C62828"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ListView Item Style -->
+        <Style TargetType="ListViewItem">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#EBEBEB"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EEF4FF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#C8DBFA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Color ComboBox Item Style -->
+        <Style x:Key="ColorComboItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#EEF4FF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#C8DBFA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#F0F0F0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ HEADER ══ -->
+        <Border Grid.Row="0" Background="{StaticResource HeaderBrush}"
+                BorderBrush="#B8CCEE" BorderThickness="0,0,0,1"
+                Padding="20,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <Label Content="📁  Categories Management"
+                           FontSize="20" FontWeight="Bold"
+                           Foreground="#2B6CC4" Padding="0"
+                           FontFamily="Segoe UI, Tahoma"/>
+                    <Label Content="Manage product categories and colors"
+                           FontSize="11" Foreground="#555555" Padding="0"
+                           FontFamily="Segoe UI, Tahoma"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="✕  Close"
+                        Width="100" Height="36"
+                        Style="{StaticResource BigBtn}"
+                        Click="btnClose_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- ══ INPUT FORM ══ -->
+        <Border Grid.Row="1" Background="#FAFAFA"
+                BorderBrush="#D0D0D0" BorderThickness="1"
+                Padding="16,12" Margin="16,12,16,8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Row 1: Name and Preset Color -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Category Name -->
+                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                        <Label Content="CATEGORY NAME"
+                               FontSize="10" Foreground="#555555"
+                               FontWeight="Bold" Padding="0" Margin="0,0,0,4"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Border BorderBrush="#99AABB" BorderThickness="1">
+                            <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                <TextBox x:Name="txtCategoryName" Background="#FFFFFF"
+                                         Foreground="#1A1A1A" BorderThickness="0"
+                                         FontSize="13" Padding="10,8" CaretBrush="#2B6CC4"
+                                         FontFamily="Segoe UI, Tahoma"/>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Preset Color Dropdown -->
+                    <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                        <Label Content="PRESET COLOR"
+                               FontSize="10" Foreground="#555555"
+                               FontWeight="Bold" Padding="0" Margin="0,0,0,4"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Border BorderBrush="#99AABB" BorderThickness="1">
+                            <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                <ComboBox x:Name="cmbPresetColors" 
+                                          Background="#FFFFFF"
+                                          Foreground="#1A1A1A" 
+                                          BorderThickness="0"
+                                          FontSize="13" 
+                                          Padding="6,8"
+                                          FontFamily="Segoe UI, Tahoma"
+                                          SelectionChanged="cmbPresetColors_SelectionChanged"
+                                          ItemContainerStyle="{StaticResource ColorComboItemStyle}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="20" Height="20" 
+                                                        Background="{Binding ColorBrush}" 
+                                                        CornerRadius="3" 
+                                                        BorderBrush="#C0C0C0" 
+                                                        BorderThickness="1"
+                                                        Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding Name}" 
+                                                           VerticalAlignment="Center"
+                                                           FontFamily="Segoe UI, Tahoma"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Border>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Buttons -->
+                    <Button Grid.Column="2" Content="➕  Add"
+                            Width="80" Height="36" Margin="0,0,6,0"
+                            Style="{StaticResource SaveBtn}"
+                            VerticalAlignment="Bottom"
+                            Click="btnAdd_Click"/>
+
+                    <Button Grid.Column="3" Content="💾  Update"
+                            Width="90" Height="36" Margin="0,0,6,0"
+                            Style="{StaticResource BigBtn}"
+                            VerticalAlignment="Bottom"
+                            Click="btnUpdate_Click"/>
+
+                    <Button Grid.Column="4" Content="🗑️  Delete"
+                            Width="90" Height="36"
+                            Style="{StaticResource DeleteBtn}"
+                            VerticalAlignment="Bottom"
+                            Click="btnDelete_Click"/>
+                </Grid>
+
+                <!-- Row 2: Custom Color Picker -->
+                <Grid Grid.Row="1" Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Color Preview -->
+                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                        <Label Content="PREVIEW"
+                               FontSize="10" Foreground="#555555"
+                               FontWeight="Bold" Padding="0" Margin="0,0,0,4"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Border x:Name="borderColorPreview" 
+                                Width="60" Height="60"
+                                Background="#4CAF50"
+                                CornerRadius="8" 
+                                BorderBrush="#99AABB" 
+                                BorderThickness="1">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.2"/>
+                            </Border.Effect>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Custom Color Section -->
+                    <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                        <Label Content="CUSTOM COLOR"
+                               FontSize="10" Foreground="#555555"
+                               FontWeight="Bold" Padding="0" Margin="0,0,0,4"
+                               FontFamily="Segoe UI, Tahoma"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Color Code Input -->
+                            <Border Grid.Column="0" BorderBrush="#99AABB" BorderThickness="1" Margin="0,0,8,0">
+                                <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                                    <TextBox x:Name="txtColorCode" Background="#FFFFFF"
+                                             Foreground="#1A1A1A" BorderThickness="0"
+                                             FontSize="13" Padding="10,8" CaretBrush="#2B6CC4"
+                                             Text="#4CAF50" TextChanged="txtColorCode_TextChanged"
+                                             FontFamily="Segoe UI, Tahoma"/>
+                                </Border>
+                            </Border>
+
+                            <!-- Pick Color Button -->
+                            <Button Grid.Column="1" Content="🎨 Pick..."
+                                    Width="80" Height="36"
+                                    Style="{StaticResource BigBtn}"
+                                    Click="btnPickColor_Click"/>
+                        </Grid>
+
+                        <!-- Hue Slider -->
+                        <Label Content="HUE ADJUSTMENT" Margin="0,8,0,2"
+                               FontSize="9" Foreground="#888888"
+                               FontWeight="Bold" Padding="0"
+                               FontFamily="Segoe UI, Tahoma"/>
+                        <Slider x:Name="sliderHue" 
+                                Minimum="0" Maximum="360" Value="120"
+                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                Height="24" Margin="0,0,0,4"
+                                ValueChanged="sliderHue_ValueChanged"/>
+
+                        <!-- Saturation/Brightness Grid -->
+                        <Grid Height="80" Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Saturation -->
+                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                <Label Content="SATURATION" 
+                                       FontSize="9" Foreground="#888888"
+                                       FontWeight="Bold" Padding="0" Margin="0,0,0,2"/>
+                                <Slider x:Name="sliderSaturation" 
+                                        Minimum="0" Maximum="100" Value="70"
+                                        TickFrequency="1" IsSnapToTickEnabled="True"
+                                        Orientation="Vertical"
+                                        Height="60"
+                                        ValueChanged="sliderSaturation_ValueChanged"/>
+                            </StackPanel>
+
+                            <!-- Brightness -->
+                            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                <Label Content="BRIGHTNESS" 
+                                       FontSize="9" Foreground="#888888"
+                                       FontWeight="Bold" Padding="0" Margin="0,0,0,2"/>
+                                <Slider x:Name="sliderBrightness" 
+                                        Minimum="20" Maximum="100" Value="50"
+                                        TickFrequency="1" IsSnapToTickEnabled="True"
+                                        Orientation="Vertical"
+                                        Height="60"
+                                        ValueChanged="sliderBrightness_ValueChanged"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Quick Color Palette -->
+                    <StackPanel Grid.Column="2">
+                        <Label Content="QUICK PALETTE"
+                           FontSize="10" Foreground="#555555"
+                           FontWeight="Bold" Padding="0" Margin="0,0,0,4"
+                           FontFamily="Segoe UI, Tahoma"/>
+                        <WrapPanel x:Name="wpQuickPalette" Width="140">
+                            <!-- 20 color buttons generated in code -->
+                        </WrapPanel>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ══ CATEGORY LIST ══ -->
+        <Border Grid.Row="2" Background="#FFFFFF"
+                BorderBrush="#C0C0C0" BorderThickness="1"
+                Margin="16,0,16,8">
+            <ListView x:Name="lvCategories" Background="Transparent"
+                      Foreground="#1A1A1A" BorderThickness="0"
+                      FontFamily="Segoe UI, Tahoma" Margin="4"
+                      SelectionChanged="lvCategories_SelectionChanged">
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style TargetType="GridViewColumnHeader">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+
+                        <!-- ID -->
+                        <GridViewColumn Width="50" DisplayMemberBinding="{Binding Id}"/>
+
+                        <!-- Color Swatch -->
+                        <GridViewColumn Width="60">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Width="36" Height="36" 
+                                            Background="{Binding ColorBrush}"
+                                            CornerRadius="6" BorderBrush="#C0C0C0" BorderThickness="1">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.15"/>
+                                        </Border.Effect>
+                                    </Border>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <!-- Category Name -->
+                        <GridViewColumn Width="220" DisplayMemberBinding="{Binding Name}"/>
+
+                        <!-- Product Count -->
+                        <GridViewColumn Width="140">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontFamily="Segoe UI, Tahoma" FontSize="12">
+                                        <Run Text="{Binding ProductCount}" FontWeight="Bold"/>
+                                        <Run Text=" products" Foreground="#555555"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <!-- Color Code -->
+                        <GridViewColumn Width="140" DisplayMemberBinding="{Binding ColorCode}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Border>
+
+        <!-- ══ FOOTER ══ -->
+        <Border Grid.Row="3" Background="#FAFAFA"
+                BorderBrush="#D0D0D0" BorderThickness="0,1,0,0"
+                Padding="16,12" Margin="0,0,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="lblMessage" Content=""
+                       FontSize="12" FontWeight="Bold"
+                       Foreground="#1A1A1A" Padding="0"
+                       VerticalContentAlignment="Center"
+                       FontFamily="Segoe UI, Tahoma"/>
+
+                <Label Grid.Column="1" x:Name="lblTotalCategories" Content="0 categories"
+                       FontSize="12" FontWeight="SemiBold"
+                       Foreground="#555555" Padding="0"
+                       VerticalContentAlignment="Center"
+                       FontFamily="Segoe UI, Tahoma"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

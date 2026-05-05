@@ -1,0 +1,400 @@
+﻿<Window x:Class="POSSystem.Windows.CloseDayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Close Day"
+        Width="500"
+        Height="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#F0F0F0">
+
+    <Window.Resources>
+        <LinearGradientBrush x:Key="BtnFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FDFDFD" Offset="0"/>
+            <GradientStop Color="#F2F2F2" Offset="0.5"/>
+            <GradientStop Color="#E8E8E8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EEF4FF" Offset="0"/>
+            <GradientStop Color="#DBE9FF" Offset="0.5"/>
+            <GradientStop Color="#C8DBFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BtnPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D4D4D4" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E8F2FF" Offset="0"/>
+            <GradientStop Color="#C8DCFA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BevelNormal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.49"/>
+            <GradientStop Color="#A0A0A0" Offset="0.50"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BevelPress" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A0A0A0" Offset="0"/>
+            <GradientStop Color="#A0A0A0" Offset="0.49"/>
+            <GradientStop Color="#FFFFFF" Offset="0.50"/>
+            <GradientStop Color="#FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <Style x:Key="BigBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#1A1A1A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#B8B8B8" BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource BtnFace}"
+                                        CornerRadius="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CloseDayBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#1A3A1A"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#70AA70" BorderThickness="1"
+                                CornerRadius="4">
+                            <Border x:Name="InnerBorder" BorderThickness="1" CornerRadius="3">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#C8F0C8" Offset="0"/>
+                                        <GradientStop Color="#C8F0C8" Offset="0.49"/>
+                                        <GradientStop Color="#508050" Offset="0.50"/>
+                                        <GradientStop Color="#508050" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <Border x:Name="FaceBorder" CornerRadius="2" Padding="12,8">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#E0F5E0" Offset="0"/>
+                                            <GradientStop Color="#B0E0B0" Offset="0.5"/>
+                                            <GradientStop Color="#88CC88" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#EAFAEA" Offset="0"/>
+                                            <GradientStop Color="#C0EAC0" Offset="0.5"/>
+                                            <GradientStop Color="#98DC98" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#70B870" Offset="0"/>
+                                            <GradientStop Color="#90CC90" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DangerBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#B71C1C"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#E57373" BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        CornerRadius="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#FFEBEE" Offset="0"/>
+                                            <GradientStop Color="#FFCDD2" Offset="0.5"/>
+                                            <GradientStop Color="#EF9A9A" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#FFCDD2" Offset="0"/>
+                                            <GradientStop Color="#EF9A9A" Offset="0.5"/>
+                                            <GradientStop Color="#E57373" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#C62828"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#F0F0F0" Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" 
+                Background="{StaticResource HeaderBrush}"
+                BorderBrush="#B8CCEE" BorderThickness="1"
+                CornerRadius="3" Padding="16,12" Margin="0,0,0,12">
+            <StackPanel>
+                <Label Content="🌙 Close Day"
+                       FontFamily="Segoe UI, Tahoma"
+                       FontSize="18" FontWeight="Bold"
+                       Foreground="#0D47A1" Padding="0"/>
+                <Label x:Name="lblDate" Content=""
+                       FontFamily="Segoe UI, Tahoma"
+                       FontSize="12" FontWeight="SemiBold"
+                       Foreground="#555555" Padding="0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Summary Cards -->
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" 
+                    Background="#FFFFFF"
+                    BorderBrush="#4CAF50" BorderThickness="2"
+                    CornerRadius="4" Padding="12" Margin="0,0,6,0">
+                <StackPanel>
+                    <Label Content="SALES"
+                           FontFamily="Segoe UI, Tahoma"
+                           FontSize="10" FontWeight="Bold"
+                           Foreground="#4CAF50" Padding="0"/>
+                    <Label x:Name="lblSalesCount" Content="0"
+                           FontFamily="Segoe UI, Tahoma"
+                           FontSize="24" FontWeight="Bold"
+                           Foreground="#1B5E20" Padding="0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" 
+                    Background="#FFFFFF"
+                    BorderBrush="#2B6CC4" BorderThickness="2"
+                    CornerRadius="4" Padding="12" Margin="3,0,3,0">
+                <StackPanel>
+                    <Label Content="TOTAL"
+                           FontFamily="Segoe UI, Tahoma"
+                           FontSize="10" FontWeight="Bold"
+                           Foreground="#2B6CC4" Padding="0"/>
+                    <Label x:Name="lblTotalAmount" Content="LBP 0"
+                           FontFamily="Segoe UI, Tahoma"
+                           FontSize="18" FontWeight="Bold"
+                           Foreground="#0D47A1" Padding="0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" 
+                    Background="#FFFFFF"
+                    BorderBrush="#FF9800" BorderThickness="2"
+                    CornerRadius="4" Padding="12" Margin="6,0,0,0">
+                <StackPanel>
+                    <Label Content="CASHIER"
+                           FontFamily="Segoe UI, Tahoma"
+                           FontSize="10" FontWeight="Bold"
+                           Foreground="#FF9800" Padding="0"/>
+                    <Label x:Name="lblCashier" Content=""
+                           FontFamily="Segoe UI, Tahoma"
+                           FontSize="14" FontWeight="Bold"
+                           Foreground="#E65100" Padding="0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Details -->
+        <Border Grid.Row="2"
+                Background="#FFFFFF"
+                BorderBrush="#99AABB" BorderThickness="1"
+                CornerRadius="3" Padding="12" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Content="Payment Breakdown"
+                       FontFamily="Segoe UI, Tahoma"
+                       FontSize="13" FontWeight="Bold"
+                       Foreground="#1A1A1A" Padding="0,0,0,8"/>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="spPaymentBreakdown">
+                        <!-- Populated in code -->
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- Buttons -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="btnCancel" Grid.Column="0" Content="Cancel"
+                    Height="40" Padding="20,0"
+                    Style="{StaticResource BigBtn}"
+                    Click="btnCancel_Click"/>
+
+            <Button x:Name="btnPrint" Grid.Column="1" Content="Print Report"
+                    Height="40" Padding="20,0" Margin="8,0"
+                    Style="{StaticResource BigBtn}"
+                    Click="btnPrint_Click"/>
+
+            <Button x:Name="btnExport" Grid.Column="2" Content="📊 Export"
+                    Height="40" Padding="20,0" Margin="8,0"
+                    Style="{StaticResource BigBtn}"
+                    Click="btnExport_Click"/>
+
+            <Button x:Name="btnCloseDay" Grid.Column="3" Content="✅ Close Day"
+                    Height="40" Padding="24,0"
+                    Style="{StaticResource CloseDayBtn}"
+                    Click="btnCloseDay_Click"/>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Border x:Name="loadingOverlay" 
+                Grid.Row="0" Grid.RowSpan="4"
+                Background="#F0F0F0" 
+                Opacity="0.85"
+                Visibility="Collapsed"
+                Panel.ZIndex="9999">
+            <Grid>
+                <Border Width="320" Height="120" 
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center"
+                        Background="#FAFAFA"
+                        BorderBrush="#B8B8B8" 
+                        BorderThickness="1"
+                        CornerRadius="4">
+
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="4" Opacity="0.15" Color="#000000"/>
+                    </Border.Effect>
+
+                    <Border BorderBrush="#FFFFFF" BorderThickness="1" CornerRadius="3">
+                        <Grid Margin="20">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock x:Name="lblLoadingMessage" 
+                                       Text="Processing..." 
+                                       FontFamily="Segoe UI, Tahoma"
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="#1A1A1A"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,15"/>
+
+                            <Border Grid.Row="1" 
+                                    Height="24" 
+                                    Background="#E8E8E8"
+                                    BorderBrush="#99AABB" 
+                                    BorderThickness="1"
+                                    CornerRadius="2">
+                                <Border BorderBrush="#FFFFFF" BorderThickness="1" CornerRadius="1">
+                                    <ProgressBar IsIndeterminate="True"
+                                                 Background="Transparent"
+                                                 BorderThickness="0"
+                                                 Foreground="#2B6CC4"/>
+                                </Border>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,316 @@
+﻿using POSSystem.Database;
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace POSSystem.Windows
+{
+    public partial class PurchaseOrdersWindow : Window
+    {
+        string _currentFilter = "All";
+
+        public PurchaseOrdersWindow()
+        {
+            InitializeComponent();
+            LoadOrders();
+        }
+
+        // ══════════════════════════════════════════════
+        // LOAD ORDERS
+        // ══════════════════════════════════════════════
+        void LoadOrders(string filter = "All", string search = "")
+        {
+            lvOrders.Items.Clear();
+            lvOrderItems.Items.Clear();
+            ClearDetail();
+
+            string where = "WHERE 1=1 ";
+            if (filter != "All")
+                where += $"AND PurchaseOrders.Status = '{filter}' ";
+            if (!string.IsNullOrEmpty(search))
+                where += $"AND (Suppliers.Name LIKE '%{search}%' " +
+                         $"OR PurchaseOrders.Notes LIKE '%{search}%') ";
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                string sql = @"
+                    SELECT PurchaseOrders.*,
+                           Suppliers.Name AS SupplierName,
+                           COUNT(PurchaseOrderItems.Id) AS ItemCount
+                    FROM PurchaseOrders
+                    JOIN Suppliers ON PurchaseOrders.SupplierId = Suppliers.Id
+                    LEFT JOIN PurchaseOrderItems ON
+                        PurchaseOrderItems.PurchaseOrderId = PurchaseOrders.Id
+                    " + where + @"
+                    GROUP BY PurchaseOrders.Id
+                    ORDER BY PurchaseOrders.Id DESC";
+
+                var r = new SQLiteCommand(sql, con).ExecuteReader();
+                int count = 0;
+                while (r.Read())
+                {
+                    lvOrders.Items.Add(new PurchaseOrder
+                    {
+                        Id = Convert.ToInt32(r["Id"]),
+                        SupplierId = Convert.ToInt32(r["SupplierId"]),
+                        SupplierName = r["SupplierName"].ToString(),
+                        OrderDate = r["OrderDate"].ToString(),
+                        ReceivedDate = r["ReceivedDate"].ToString(),
+                        Status = r["Status"].ToString(),
+                        Notes = r["Notes"].ToString(),
+                        ItemCount = Convert.ToInt32(r["ItemCount"])
+                    });
+                    count++;
+                }
+                r.Close();
+                lblOrderCount.Content = $"📋  {count} Order(s)";
+            }
+        }
+
+        // ══════════════════════════════════════════════
+        // LOAD ORDER ITEMS
+        // ══════════════════════════════════════════════
+        void LoadOrderItems(int orderId)
+        {
+            lvOrderItems.Items.Clear();
+            double total = 0;
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var r = new SQLiteCommand(@"
+                    SELECT PurchaseOrderItems.*, Products.Name AS ProductName
+                    FROM PurchaseOrderItems
+                    JOIN Products ON PurchaseOrderItems.ProductId = Products.Id
+                    WHERE PurchaseOrderId = " + orderId, con).ExecuteReader();
+
+                while (r.Read())
+                {
+                    int qty = Convert.ToInt32(r["Quantity"]);
+                    double cost = Convert.ToDouble(r["UnitCost"]);
+                    var item = new PurchaseOrderItem
+                    {
+                        Id = Convert.ToInt32(r["Id"]),
+                        ProductId = Convert.ToInt32(r["ProductId"]),
+                        ProductName = r["ProductName"].ToString(),
+                        Quantity = qty,
+                        UnitCost = cost
+                    };
+                    lvOrderItems.Items.Add(item);
+                    total += item.TotalCost;
+                }
+                r.Close();
+            }
+            lblOrderTotal.Content = $"LBP {total:N0}";
+        }
+
+        // ══════════════════════════════════════════════
+        // SELECTION CHANGED
+        // ══════════════════════════════════════════════
+        private void lvOrders_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (lvOrders.SelectedItem == null) { ClearDetail(); return; }
+
+            var o = (PurchaseOrder)lvOrders.SelectedItem;
+            lblDetailSupplier.Content = o.SupplierName;
+            lblDetailDate.Content = o.OrderDate;
+            lblDetailStatus.Content = o.Status;
+            lblDetailNotes.Content = string.IsNullOrEmpty(o.Notes) ? "—" : o.Notes;
+            LoadOrderItems(o.Id);
+        }
+
+        void ClearDetail()
+        {
+            lblDetailSupplier.Content = "—";
+            lblDetailDate.Content = "—";
+            lblDetailStatus.Content = "—";
+            lblDetailNotes.Content = "—";
+            lblOrderTotal.Content = "LBP 0";
+            lvOrderItems.Items.Clear();
+        }
+
+        // ══════════════════════════════════════════════
+        // NEW ORDER
+        // ══════════════════════════════════════════════
+        private void btnNewOrder_Click(object sender, RoutedEventArgs e)
+        {
+            new NewOrderWindow().ShowDialog();
+            LoadOrders(_currentFilter, txtSearch.Text.Trim());
+        }
+
+        // ══════════════════════════════════════════════
+        // MARK RECEIVED
+        // ══════════════════════════════════════════════
+        private void btnMarkReceived_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvOrders.SelectedItem == null)
+            { MessageBox.Show("⚠️ Select an order first!"); return; }
+
+            var o = (PurchaseOrder)lvOrders.SelectedItem;
+
+            if (o.Status == "Received")
+            { MessageBox.Show("⚠️ Order already received!"); return; }
+            if (o.Status == "Cancelled")
+            { MessageBox.Show("⚠️ Cannot receive a cancelled order!"); return; }
+
+            if (MessageBox.Show(
+                $"Mark Order #{o.Id} as Received?\n\nThis will add all ordered items to stock.",
+                "✅ Mark Received", MessageBoxButton.YesNo,
+                MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var upd = new SQLiteCommand(
+                    "UPDATE PurchaseOrders SET Status='Received', ReceivedDate=@date WHERE Id=@id", con);
+                upd.Parameters.AddWithValue("@date", DateTime.Now.ToString("dd/MM/yyyy"));
+                upd.Parameters.AddWithValue("@id", o.Id);
+                upd.ExecuteNonQuery();
+
+                var items = new SQLiteCommand(
+                    "SELECT ProductId, Quantity FROM PurchaseOrderItems WHERE PurchaseOrderId=" + o.Id,
+                    con).ExecuteReader();
+
+                var toUpdate = new List<(int ProductId, int Qty)>();
+                while (items.Read())
+                    toUpdate.Add((Convert.ToInt32(items["ProductId"]), Convert.ToInt32(items["Quantity"])));
+                items.Close();
+
+                foreach (var (pid, qty) in toUpdate)
+                {
+                    var s = new SQLiteCommand(
+                        "UPDATE Products SET Stock=Stock+@qty WHERE Id=@id", con);
+                    s.Parameters.AddWithValue("@qty", qty);
+                    s.Parameters.AddWithValue("@id", pid);
+                    s.ExecuteNonQuery();
+                }
+            }
+
+            MessageBox.Show("✅ Order received! Stock updated.", "Success",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            LoadOrders(_currentFilter, txtSearch.Text.Trim());
+        }
+
+        // ══════════════════════════════════════════════
+        // CANCEL ORDER
+        // ══════════════════════════════════════════════
+        private void btnCancelOrder_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvOrders.SelectedItem == null)
+            { MessageBox.Show("⚠️ Select an order first!"); return; }
+
+            var o = (PurchaseOrder)lvOrders.SelectedItem;
+            if (o.Status != "Pending")
+            { MessageBox.Show("⚠️ Only pending orders can be cancelled!"); return; }
+
+            if (MessageBox.Show($"Cancel Order #{o.Id}?", "Cancel Order",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var cmd = new SQLiteCommand(
+                    "UPDATE PurchaseOrders SET Status='Cancelled' WHERE Id=@id", con);
+                cmd.Parameters.AddWithValue("@id", o.Id);
+                cmd.ExecuteNonQuery();
+            }
+
+            LoadOrders(_currentFilter, txtSearch.Text.Trim());
+        }
+
+        // ══════════════════════════════════════════════
+        // DELETE ORDER
+        // ══════════════════════════════════════════════
+        private void btnDeleteOrder_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvOrders.SelectedItem == null)
+            { MessageBox.Show("⚠️ Select an order first!"); return; }
+
+            var o = (PurchaseOrder)lvOrders.SelectedItem;
+
+            if (MessageBox.Show($"Delete Order #{o.Id} permanently?", "Delete Order",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                new SQLiteCommand(
+                    "DELETE FROM PurchaseOrderItems WHERE PurchaseOrderId=" + o.Id, con)
+                    .ExecuteNonQuery();
+                new SQLiteCommand(
+                    "DELETE FROM PurchaseOrders WHERE Id=" + o.Id, con)
+                    .ExecuteNonQuery();
+            }
+
+            LoadOrders(_currentFilter, txtSearch.Text.Trim());
+        }
+
+        // ══════════════════════════════════════════════
+        // EXPORT PDF
+        // ══════════════════════════════════════════════
+        private void btnExportPdf_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvOrders.SelectedItem == null)
+            { MessageBox.Show("⚠️ Select an order to export!"); return; }
+
+            var o = (PurchaseOrder)lvOrders.SelectedItem;
+            var items = new List<PurchaseOrderItem>();
+            double total = 0;
+
+            using (var con = new SQLiteConnection(DatabaseHelper.ConnectionString))
+            {
+                con.Open();
+                var r = new SQLiteCommand(@"
+                    SELECT PurchaseOrderItems.*, Products.Name AS ProductName
+                    FROM PurchaseOrderItems
+                    JOIN Products ON PurchaseOrderItems.ProductId = Products.Id
+                    WHERE PurchaseOrderId = " + o.Id, con).ExecuteReader();
+
+                while (r.Read())
+                {
+                    var item = new PurchaseOrderItem
+                    {
+                        ProductName = r["ProductName"].ToString(),
+                        Quantity = Convert.ToInt32(r["Quantity"]),
+                        UnitCost = Convert.ToDouble(r["UnitCost"])
+                    };
+                    items.Add(item);
+                    total += item.TotalCost;
+                }
+                r.Close();
+            }
+
+            PdfExportHelper.ExportPurchaseOrder(o, items, total);
+        }
+
+        // ══════════════════════════════════════════════
+        // SUPPLIERS
+        // ══════════════════════════════════════════════
+        private void btnSuppliers_Click(object sender, RoutedEventArgs e)
+            => new SuppliersWindow().ShowDialog();
+
+        // ══════════════════════════════════════════════
+        // FILTER
+        // ══════════════════════════════════════════════
+        private void btnFilterPending_Click(object sender, RoutedEventArgs e)
+        { _currentFilter = "Pending"; LoadOrders("Pending", txtSearch.Text.Trim()); }
+
+        private void btnFilterReceived_Click(object sender, RoutedEventArgs e)
+        { _currentFilter = "Received"; LoadOrders("Received", txtSearch.Text.Trim()); }
+
+        private void btnFilterCancelled_Click(object sender, RoutedEventArgs e)
+        { _currentFilter = "Cancelled"; LoadOrders("Cancelled", txtSearch.Text.Trim()); }
+
+        private void btnFilterAll_Click(object sender, RoutedEventArgs e)
+        { _currentFilter = "All"; LoadOrders("All", txtSearch.Text.Trim()); }
+
+        private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
+            => LoadOrders(_currentFilter, txtSearch.Text.Trim());
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+            => this.Close();
+    }
+}

@@ -1,0 +1,84 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C9326196-7D89-44DA-9390-3A5BF0E93C68}|POSSystem\\POSSystem.csproj|c:\\users\\lenovo\\desktop\\possystem\\possystem\\windows\\fastsaleswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C9326196-7D89-44DA-9390-3A5BF0E93C68}|POSSystem\\POSSystem.csproj|solutionrelative:possystem\\windows\\fastsaleswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C9326196-7D89-44DA-9390-3A5BF0E93C68}|POSSystem\\POSSystem.csproj|c:\\users\\lenovo\\desktop\\possystem\\possystem\\windows\\gridsaleswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C9326196-7D89-44DA-9390-3A5BF0E93C68}|POSSystem\\POSSystem.csproj|solutionrelative:possystem\\windows\\gridsaleswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C9326196-7D89-44DA-9390-3A5BF0E93C68}|POSSystem\\POSSystem.csproj|c:\\users\\lenovo\\desktop\\possystem\\possystem\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C9326196-7D89-44DA-9390-3A5BF0E93C68}|POSSystem\\POSSystem.csproj|solutionrelative:possystem\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C9326196-7D89-44DA-9390-3A5BF0E93C68}|POSSystem\\POSSystem.csproj|c:\\users\\lenovo\\desktop\\possystem\\possystem\\windows\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C9326196-7D89-44DA-9390-3A5BF0E93C68}|POSSystem\\POSSystem.csproj|solutionrelative:possystem\\windows\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 100,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "GridSalesWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\POSSystem\\Windows\\GridSalesWindow.xaml",
+              "RelativeDocumentMoniker": "POSSystem\\Windows\\GridSalesWindow.xaml",
+              "ToolTip": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\POSSystem\\Windows\\GridSalesWindow.xaml",
+              "RelativeToolTip": "POSSystem\\Windows\\GridSalesWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-04-23T12:18:04.185Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "FastSalesWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\POSSystem\\Windows\\FastSalesWindow.xaml",
+              "RelativeDocumentMoniker": "POSSystem\\Windows\\FastSalesWindow.xaml",
+              "ToolTip": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\POSSystem\\Windows\\FastSalesWindow.xaml",
+              "RelativeToolTip": "POSSystem\\Windows\\FastSalesWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-04-23T12:18:03.222Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "LoginWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\POSSystem\\Windows\\LoginWindow.xaml",
+              "RelativeDocumentMoniker": "POSSystem\\Windows\\LoginWindow.xaml",
+              "ToolTip": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\POSSystem\\Windows\\LoginWindow.xaml",
+              "RelativeToolTip": "POSSystem\\Windows\\LoginWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-04-23T12:17:14.647Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\POSSystem\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "POSSystem\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\Lenovo\\Desktop\\POSSystem\\POSSystem\\MainWindow.xaml",
+              "RelativeToolTip": "POSSystem\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-04-23T12:17:04.862Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

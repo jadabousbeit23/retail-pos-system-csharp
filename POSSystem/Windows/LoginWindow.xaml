@@ -1,0 +1,422 @@
+<Window x:Class="POSSystem.Windows.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="POS System — Login"
+        WindowState="Maximized"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        KeyboardNavigation.TabNavigation="Cycle">
+        <!--WindowStartupLocation="CenterScreen"-->
+    
+        
+
+    <Window.Resources>
+
+        <LinearGradientBrush x:Key="BtnFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FDFDFD" Offset="0"/>
+            <GradientStop Color="#F2F2F2" Offset="0.5"/>
+            <GradientStop Color="#E8E8E8" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="BtnHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#EEF4FF" Offset="0"/>
+            <GradientStop Color="#DBE9FF" Offset="0.5"/>
+            <GradientStop Color="#C8DBFA" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="BtnPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#D4D4D4" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="LeftPanelBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#DCF0FF" Offset="0"/>
+            <GradientStop Color="#C8DCFA" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="BevelNormal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.49"/>
+            <GradientStop Color="#A0A0A0" Offset="0.50"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="BevelPress" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A0A0A0" Offset="0"/>
+            <GradientStop Color="#A0A0A0" Offset="0.49"/>
+            <GradientStop Color="#FFFFFF" Offset="0.50"/>
+            <GradientStop Color="#FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Right panel gradient: pearl white → ice blue → steel blue, top-left to bottom-right -->
+        <LinearGradientBrush x:Key="RightPanelBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0.00"/>
+            <GradientStop Color="#EEF5FF" Offset="0.30"/>
+            <GradientStop Color="#DAEAFF" Offset="0.60"/>
+            <GradientStop Color="#C2D8F5" Offset="1.00"/>
+        </LinearGradientBrush>
+
+        <!-- Standard numpad key -->
+        <Style x:Key="KeyBtn" TargetType="Button">
+            <Setter Property="FontFamily"      Value="Segoe UI, Tahoma"/>
+            <Setter Property="FontSize"        Value="34"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Foreground"      Value="#1A1A1A"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder" BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="4">
+                            <Border x:Name="InnerBorder" BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="3">
+                                <Border x:Name="FaceBorder" Background="{StaticResource BtnFace}"
+                                        CornerRadius="2" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder"  Property="Background"  Value="{StaticResource BtnHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder"  Property="Background"  Value="{StaticResource BtnPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Enter key — green gradient -->
+        <Style x:Key="EnterBtn" TargetType="Button">
+            <Setter Property="FontFamily"      Value="Segoe UI, Tahoma"/>
+            <Setter Property="FontSize"        Value="26"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder" BorderBrush="#70AA70" BorderThickness="1" CornerRadius="4">
+                            <Border x:Name="InnerBorder" BorderThickness="1" CornerRadius="3">
+                                <Border.BorderBrush>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#C8F0C8" Offset="0"/>
+                                        <GradientStop Color="#C8F0C8" Offset="0.49"/>
+                                        <GradientStop Color="#508050" Offset="0.50"/>
+                                        <GradientStop Color="#508050" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.BorderBrush>
+                                <Border x:Name="FaceBorder" CornerRadius="2" Padding="{TemplateBinding Padding}">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#E0F5E0" Offset="0"/>
+                                            <GradientStop Color="#B0E0B0" Offset="0.5"/>
+                                            <GradientStop Color="#88CC88" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Opacity" Value="0.85"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Backspace key — red gradient -->
+        <Style x:Key="BackBtn" TargetType="Button">
+            <Setter Property="FontFamily"      Value="Segoe UI, Tahoma"/>
+            <Setter Property="FontSize"        Value="28"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder" BorderBrush="#C08080" BorderThickness="1" CornerRadius="4">
+                            <Border x:Name="FaceBorder" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#EE6060" Offset="0"/>
+                                        <GradientStop Color="#C02020" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Opacity" Value="0.85"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#4488CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="520"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ══ LEFT — Branding panel ══ -->
+        <Border Grid.Column="0"
+                Background="{StaticResource LeftPanelBrush}"
+                BorderBrush="#B8CCEE" BorderThickness="0,0,1,0">
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Margin="60">
+
+                <Border Width="150" Height="150" CornerRadius="5"
+                        BorderBrush="#B8B8B8" BorderThickness="1"
+                        HorizontalAlignment="Center" Margin="0,0,0,28">
+                    <Border BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="4">
+                        <Border CornerRadius="3">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#4A90D9" Offset="0"/>
+                                    <GradientStop Color="#2B6CC4" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Label Content="🛒" FontSize="64"
+                                   HorizontalContentAlignment="Center"
+                                   VerticalContentAlignment="Center"
+                                   Foreground="White"/>
+                        </Border>
+                    </Border>
+                </Border>
+
+                <Label Content="POS System" FontFamily="Segoe UI, Tahoma"
+                       FontSize="38" FontWeight="Bold" Foreground="#2B6CC4"
+                       HorizontalContentAlignment="Center" Padding="0"/>
+                <Label Content="Point of Sale Management" FontFamily="Segoe UI, Tahoma"
+                       FontSize="16" Foreground="#555555"
+                       HorizontalContentAlignment="Center"
+                       Padding="0" Margin="0,6,0,36"/>
+
+                <Border BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="4"
+                        Margin="0,5" HorizontalAlignment="Center" MinWidth="320">
+                    <Border BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="3">
+                        <Border CornerRadius="2" Padding="18,10" Background="{StaticResource BtnFace}">
+                            <Label Content="✅  Sales Management" FontFamily="Segoe UI, Tahoma"
+                                   Foreground="#2B6CC4" FontSize="15" FontWeight="Bold"
+                                   Padding="0" HorizontalContentAlignment="Center"/>
+                        </Border>
+                    </Border>
+                </Border>
+                <Border BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="4"
+                        Margin="0,5" HorizontalAlignment="Center" MinWidth="320">
+                    <Border BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="3">
+                        <Border CornerRadius="2" Padding="18,10" Background="{StaticResource BtnFace}">
+                            <Label Content="📦  Inventory Control" FontFamily="Segoe UI, Tahoma"
+                                   Foreground="#2B6CC4" FontSize="15" FontWeight="Bold"
+                                   Padding="0" HorizontalContentAlignment="Center"/>
+                        </Border>
+                    </Border>
+                </Border>
+                <Border BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="4"
+                        Margin="0,5" HorizontalAlignment="Center" MinWidth="320">
+                    <Border BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="3">
+                        <Border CornerRadius="2" Padding="18,10" Background="{StaticResource BtnFace}">
+                            <Label Content="📊  Reports &amp; Analytics" FontFamily="Segoe UI, Tahoma"
+                                   Foreground="#2B6CC4" FontSize="15" FontWeight="Bold"
+                                   Padding="0" HorizontalContentAlignment="Center"/>
+                        </Border>
+                    </Border>
+                </Border>
+                <Border BorderBrush="#B8B8B8" BorderThickness="1" CornerRadius="4"
+                        Margin="0,5" HorizontalAlignment="Center" MinWidth="320">
+                    <Border BorderBrush="{StaticResource BevelNormal}" BorderThickness="1" CornerRadius="3">
+                        <Border CornerRadius="2" Padding="18,10" Background="{StaticResource BtnFace}">
+                            <Label Content="👥  User Management" FontFamily="Segoe UI, Tahoma"
+                                   Foreground="#2B6CC4" FontSize="15" FontWeight="Bold"
+                                   Padding="0" HorizontalContentAlignment="Center"/>
+                        </Border>
+                    </Border>
+                </Border>
+
+                <Label x:Name="lblVersion" Content="POS System v1.0.0 — Code Login"
+                       FontFamily="Segoe UI, Tahoma"
+                       FontSize="12" Foreground="#888888"
+                       HorizontalContentAlignment="Center"
+                       Margin="0,34,0,0" Padding="0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ RIGHT — gradient background, perfectly centered numpad ══ -->
+        <Grid Grid.Column="1" Background="{StaticResource RightPanelBrush}">
+
+            <!-- Diagonal hatching overlay — same blue family, very subtle -->
+            <Rectangle>
+                <Rectangle.Fill>
+                    <DrawingBrush TileMode="Tile"
+                                  Viewport="0,0,32,32"
+                                  ViewportUnits="Absolute">
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing>
+                                <GeometryDrawing.Pen>
+                                    <Pen Thickness="0.8">
+                                        <Pen.Brush>
+                                            <SolidColorBrush Color="#4477BB" Opacity="0.06"/>
+                                        </Pen.Brush>
+                                    </Pen>
+                                </GeometryDrawing.Pen>
+                                <GeometryDrawing.Geometry>
+                                    <LineGeometry StartPoint="-4,36" EndPoint="36,-4"/>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+
+            <!--
+                Numpad — HorizontalAlignment="Center" + VerticalAlignment="Center"
+                places it exactly in the middle of the right column.
+                Width="560" gives bigger buttons with natural margin on all sides.
+            -->
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Width="560">
+
+                <Label Content="Enter Your Code"
+                       FontFamily="Segoe UI, Tahoma"
+                       FontSize="30" FontWeight="Bold"
+                       Foreground="#1E5BAD" Padding="0"
+                       HorizontalContentAlignment="Center"
+                       Margin="0,0,0,6"/>
+                <Label Content="Use numpad or keyboard number keys"
+                       FontFamily="Segoe UI, Tahoma"
+                       FontSize="15" Foreground="#4A6080"
+                       HorizontalContentAlignment="Center"
+                       Padding="0" Margin="0,0,0,20"/>
+
+                <!-- Code display -->
+                <Border BorderBrush="#88AACC" BorderThickness="1" Margin="0,0,0,4">
+                    <Border BorderBrush="#FFFFFF" BorderThickness="1">
+                        <Grid Margin="14">
+                            <Grid.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#F5F9FF" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Grid.Background>
+                            <Label x:Name="lblCodeDisplay"
+                                   Content="○  ○  ○  ○  ○  ○"
+                                   FontFamily="Consolas"
+                                   FontSize="46" FontWeight="Bold"
+                                   Foreground="#1E5BAD"
+                                   HorizontalContentAlignment="Center"
+                                   Padding="6,4"/>
+                        </Grid>
+                    </Border>
+                </Border>
+
+                <!-- Error label -->
+                <Label x:Name="lblError" Content=""
+                       FontFamily="Segoe UI, Tahoma"
+                       Foreground="#B00000" FontSize="15"
+                       HorizontalContentAlignment="Center"
+                       Padding="0" Margin="0,0,0,14" MinHeight="26"/>
+
+                <!-- Numpad card -->
+                <Border BorderBrush="#AABBD4" BorderThickness="1"
+                        CornerRadius="5" Padding="16">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FAFCFF" Offset="0"/>
+                            <GradientStop Color="#F0F6FF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="3" Opacity="0.10" Color="#2255AA"/>
+                    </Border.Effect>
+                    <StackPanel>
+
+                        <!-- Row 1: 7 8 9 -->
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btn7" Grid.Column="0" Content="7" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                            <Button x:Name="btn8" Grid.Column="1" Content="8" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                            <Button x:Name="btn9" Grid.Column="2" Content="9" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                        </Grid>
+
+                        <!-- Row 2: 4 5 6 -->
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btn4" Grid.Column="0" Content="4" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                            <Button x:Name="btn5" Grid.Column="1" Content="5" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                            <Button x:Name="btn6" Grid.Column="2" Content="6" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                        </Grid>
+
+                        <!-- Row 3: 1 2 3 -->
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btn1" Grid.Column="0" Content="1" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                            <Button x:Name="btn2" Grid.Column="1" Content="2" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                            <Button x:Name="btn3" Grid.Column="2" Content="3" Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}" Click="btnNum_Click"/>
+                        </Grid>
+
+                        <!-- Row 4: ⌫  0  Enter -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btnBack"     Grid.Column="0" Content="⌫"       Height="90" Margin="4,0"
+                                    Style="{StaticResource BackBtn}"  Click="btnBackspace_Click"/>
+                            <Button x:Name="btn0"        Grid.Column="1" Content="0"        Height="90" Margin="4,0"
+                                    Style="{StaticResource KeyBtn}"   Click="btnNum_Click"/>
+                            <Button x:Name="btnEnterKey" Grid.Column="2" Content="✔ Enter"  Height="90" Margin="4,0"
+                                    Style="{StaticResource EnterBtn}" Click="btnEnter_Click"/>
+                        </Grid>
+
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

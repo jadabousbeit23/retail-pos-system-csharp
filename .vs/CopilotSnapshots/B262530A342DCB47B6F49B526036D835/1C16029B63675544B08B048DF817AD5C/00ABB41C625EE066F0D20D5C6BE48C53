@@ -1,0 +1,95 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Windows;
+
+namespace POSSystem.Windows
+{
+    public partial class PurchaseOrdersWindow : Window
+    {
+        private ObservableCollection<PurchaseOrder> allOrders = new ObservableCollection<PurchaseOrder>();
+        private string currentFilter = "All";
+
+        public PurchaseOrdersWindow()
+        {
+            InitializeComponent();
+            InitializeWindow();
+        }
+
+        private void InitializeWindow()
+        {
+            lvOrders.ItemsSource = allOrders;
+            LoadOrders();
+        }
+
+        private void LoadOrders()
+        {
+            allOrders.Clear();
+            // TODO: Load orders from database
+            // Example data structure - replace with actual database calls
+        }
+
+        private void btnSuppliers_Click(object sender, RoutedEventArgs e)
+        {
+            SuppliersWindow supplier = new SuppliersWindow();
+            supplier.ShowDialog();
+        }
+
+        private void btnNewOrder_Click(object sender, RoutedEventArgs e)
+        {
+            NewOrderWindow newOrder = new NewOrderWindow();
+            newOrder.ShowDialog();
+            LoadOrders(); // Refresh list after creating new order
+        }
+
+        private void btnExportPdf_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Implement PDF export functionality
+            MessageBox.Show("PDF export feature coming soon", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnFilterPending_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Pending";
+            ApplyFilter();
+        }
+
+        private void btnFilterReceived_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Received";
+            ApplyFilter();
+        }
+
+        private void btnFilterCancelled_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "Cancelled";
+            ApplyFilter();
+        }
+
+        private void btnFilterAll_Click(object sender, RoutedEventArgs e)
+        {
+            currentFilter = "All";
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            // TODO: Implement filtering logic based on order status
+            LoadOrders();
+        }
+    }
+
+    public class PurchaseOrder
+    {
+        public string OrderId { get; set; }
+        public string SupplierName { get; set; }
+        public DateTime OrderDate { get; set; }
+        public decimal TotalAmount { get; set; }
+        public string Status { get; set; }
+        public string StatusColor { get; set; }
+    }
+}

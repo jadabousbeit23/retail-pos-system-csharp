@@ -1,0 +1,683 @@
+﻿<Window x:Class="POSSystem.Windows.ReportsHubWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Reports Hub" 
+        Height="600" Width="850"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F0F0">
+
+    <Window.Resources>
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  PURPLE GRADIENTS (Reports Style)                      -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <LinearGradientBrush x:Key="PurpleFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F3E5F5" Offset="0"/>
+            <GradientStop Color="#E1BEE7" Offset="0.5"/>
+            <GradientStop Color="#CE93D8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="PurpleHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E1BEE7" Offset="0"/>
+            <GradientStop Color="#CE93D8" Offset="0.5"/>
+            <GradientStop Color="#BA68C8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="PurplePress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#BA68C8" Offset="0"/>
+            <GradientStop Color="#AB47BC" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  BLUE GRADIENTS (Standard Reports)                     -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <LinearGradientBrush x:Key="BlueFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E3F2FD" Offset="0"/>
+            <GradientStop Color="#BBDEFB" Offset="0.5"/>
+            <GradientStop Color="#90CAF9" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BlueHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#BBDEFB" Offset="0"/>
+            <GradientStop Color="#90CAF9" Offset="0.5"/>
+            <GradientStop Color="#64B5F6" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BluePress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#64B5F6" Offset="0"/>
+            <GradientStop Color="#42A5F5" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  GREEN GRADIENTS (Z-Report / Excel)                    -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <LinearGradientBrush x:Key="GreenFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E8F5E9" Offset="0"/>
+            <GradientStop Color="#C8E6C9" Offset="0.5"/>
+            <GradientStop Color="#A5D6A7" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="GreenHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#C8E6C9" Offset="0"/>
+            <GradientStop Color="#A5D6A7" Offset="0.5"/>
+            <GradientStop Color="#81C784" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="GreenPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#81C784" Offset="0"/>
+            <GradientStop Color="#66BB6A" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  CYAN/TEAL GRADIENTS (X-Report)                        -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <LinearGradientBrush x:Key="CyanFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#E0F7FA" Offset="0"/>
+            <GradientStop Color="#B2EBF2" Offset="0.5"/>
+            <GradientStop Color="#80DEEA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="CyanHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#B2EBF2" Offset="0"/>
+            <GradientStop Color="#80DEEA" Offset="0.5"/>
+            <GradientStop Color="#4DD0E1" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="CyanPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#4DD0E1" Offset="0"/>
+            <GradientStop Color="#26C6DA" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  AMBER/RED GRADIENTS (Close Day / Cashier)             -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <LinearGradientBrush x:Key="AmberFace" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFF3E0" Offset="0"/>
+            <GradientStop Color="#FFE0B2" Offset="0.5"/>
+            <GradientStop Color="#FFCC80" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="AmberHover" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFE0B2" Offset="0"/>
+            <GradientStop Color="#FFCC80" Offset="0.5"/>
+            <GradientStop Color="#FFB74D" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="AmberPress" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFB74D" Offset="0"/>
+            <GradientStop Color="#FFA726" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  BEVEL BRUSHES                                         -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <LinearGradientBrush x:Key="BevelNormal" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#FFFFFF" Offset="0.49"/>
+            <GradientStop Color="#A0A0A0" Offset="0.50"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="BevelPress" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A0A0A0" Offset="0"/>
+            <GradientStop Color="#A0A0A0" Offset="0.49"/>
+            <GradientStop Color="#FFFFFF" Offset="0.50"/>
+            <GradientStop Color="#FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  HEADER BRUSH (Purple)                                 -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <LinearGradientBrush x:Key="HeaderBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F3E5F5" Offset="0"/>
+            <GradientStop Color="#E1BEE7" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  NAV BUTTON STYLE (Blue - Standard Reports)            -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Style x:Key="NavBtnBlue" TargetType="Button">
+            <Setter Property="Width" Value="148"/>
+            <Setter Property="Height" Value="76"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#1976D2" 
+                                BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" 
+                                    CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource BlueFace}"
+                                        CornerRadius="1"
+                                        Padding="4">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BlueHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#1565C0"/>
+                                <Setter TargetName="OuterBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="#1976D2"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource BluePress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  NAV BUTTON STYLE (Purple - Reports)                   -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Style x:Key="NavBtnPurple" TargetType="Button">
+            <Setter Property="Width" Value="148"/>
+            <Setter Property="Height" Value="76"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#8E24AA" 
+                                BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" 
+                                    CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource PurpleFace}"
+                                        CornerRadius="1"
+                                        Padding="4">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource PurpleHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#6A1B9A"/>
+                                <Setter TargetName="OuterBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="#8E24AA"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource PurplePress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  NAV BUTTON STYLE (Green - Z-Report/Excel)             -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Style x:Key="NavBtnGreen" TargetType="Button">
+            <Setter Property="Width" Value="148"/>
+            <Setter Property="Height" Value="76"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#388E3C" 
+                                BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" 
+                                    CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource GreenFace}"
+                                        CornerRadius="1"
+                                        Padding="4">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource GreenHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#2E7D32"/>
+                                <Setter TargetName="OuterBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="#388E3C"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource GreenPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  NAV BUTTON STYLE (Cyan - X-Report)                    -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Style x:Key="NavBtnCyan" TargetType="Button">
+            <Setter Property="Width" Value="148"/>
+            <Setter Property="Height" Value="76"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#00ACC1" 
+                                BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" 
+                                    CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource CyanFace}"
+                                        CornerRadius="1"
+                                        Padding="4">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource CyanHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#0097A7"/>
+                                <Setter TargetName="OuterBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="#00ACC1"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource CyanPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  NAV BUTTON STYLE (Amber - Admin/Close)                -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Style x:Key="NavBtnAmber" TargetType="Button">
+            <Setter Property="Width" Value="148"/>
+            <Setter Property="Height" Value="76"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#F57C00" 
+                                BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" 
+                                    CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="{StaticResource AmberFace}"
+                                        CornerRadius="1"
+                                        Padding="4">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource AmberHover}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#EF6C00"/>
+                                <Setter TargetName="OuterBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.3" Color="#F57C00"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="{StaticResource AmberPress}"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  CLOSE BUTTON STYLE                                    -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Style x:Key="CloseBtn" TargetType="Button">
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Segoe UI, Tahoma"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="OuterBorder"
+                                BorderBrush="#B00000" 
+                                BorderThickness="1"
+                                CornerRadius="3">
+                            <Border x:Name="InnerBorder"
+                                    BorderBrush="{StaticResource BevelNormal}"
+                                    BorderThickness="1" 
+                                    CornerRadius="2">
+                                <Border x:Name="FaceBorder"
+                                        Background="#FFEBEE"
+                                        CornerRadius="1"
+                                        Padding="12,6">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="#FFCDD2"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="#D32F2F"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="FaceBorder" Property="Background" Value="#EF9A9A"/>
+                                <Setter TargetName="InnerBorder" Property="BorderBrush" Value="{StaticResource BevelPress}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid Background="#F0F0F0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  HEADER (Purple Theme)                                 -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" 
+                Background="{StaticResource HeaderBrush}"
+                BorderBrush="#8E24AA" BorderThickness="0,0,0,2"
+                Padding="20,15" Margin="20,20,20,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Title Badge -->
+                <Border Grid.Column="0"
+                        BorderBrush="#8E24AA" BorderThickness="1"
+                        CornerRadius="3">
+                    <Border CornerRadius="2" Padding="16,8">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#BA68C8" Offset="0"/>
+                                <GradientStop Color="#9C27B0" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label Content="📊" FontSize="24" Padding="0,0,10,0"
+                                   VerticalContentAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <Label Content="Reports Hub"
+                                       FontFamily="Segoe UI, Tahoma"
+                                       FontSize="16" FontWeight="Bold"
+                                       Foreground="White" Padding="0"/>
+                                <Label Content="All reports in one place"
+                                       FontFamily="Segoe UI, Tahoma"
+                                       FontSize="11"
+                                       Foreground="#F3E5F5" Padding="0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Border>
+
+                <!-- Close Button -->
+                <Button Grid.Column="2" Content="✕ Close"
+                        Style="{StaticResource CloseBtn}"
+                        Foreground="#B00000"
+                        Click="btnClose_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  BUTTON GRID (7 Buttons with Colorful Themes)          -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Border Grid.Row="1" 
+                Background="#FAFAFA"
+                BorderBrush="#D0D0D0" BorderThickness="1"
+                Margin="20,0,20,10" Padding="20">
+            <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                <!-- Standard Reports - BLUE -->
+                <Button x:Name="btnStandardReports" 
+                        Style="{StaticResource NavBtnBlue}"
+                        Click="btnStandardReports_Click">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label Content="📋" FontSize="28" Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#1565C0"/>
+                        <Label Content="Standard Reports"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="12" FontWeight="SemiBold"
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#0D47A1"/>
+                        <Label Content="Daily / Monthly / Yearly"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="9" 
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#1976D2"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Advanced Reports - PURPLE -->
+                <Button x:Name="btnAdvancedReports" 
+                        Style="{StaticResource NavBtnPurple}"
+                        Click="btnAdvancedReports_Click">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label Content="📈" FontSize="28" Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#7B1FA2"/>
+                        <Label Content="Advanced Reports"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="12" FontWeight="SemiBold"
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#4A148C"/>
+                        <Label Content="Profit, Best Sellers, Hourly"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="9" 
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#8E24AA"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- X-Report - CYAN -->
+                <Button x:Name="btnXReport" 
+                        Style="{StaticResource NavBtnCyan}"
+                        Click="btnXReport_Click">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label Content="📄" FontSize="28" Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#00838F"/>
+                        <Label Content="X-Report"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="12" FontWeight="SemiBold"
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#006064"/>
+                        <Label Content="Current Shift Snapshot"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="9" 
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#00ACC1"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Z-Report - GREEN -->
+                <Button x:Name="btnZReport" 
+                        Style="{StaticResource NavBtnGreen}"
+                        Click="btnZReport_Click">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label Content="🔒" FontSize="28" Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#2E7D32"/>
+                        <Label Content="Z-Report"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="12" FontWeight="SemiBold"
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#1B5E20"/>
+                        <Label Content="End of Day Summary"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="9" 
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#388E3C"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Excel Export - GREEN -->
+                <Button x:Name="btnExcelExport" 
+                        Style="{StaticResource NavBtnGreen}"
+                        Click="btnExcelExport_Click">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label Content="📥" FontSize="28" Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#2E7D32"/>
+                        <Label Content="Excel Export"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="12" FontWeight="SemiBold"
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#1B5E20"/>
+                        <Label Content="Export to Spreadsheet"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="9" 
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#388E3C"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Cashier Report - AMBER -->
+                <Button x:Name="btnCashierReport" 
+                        Style="{StaticResource NavBtnAmber}"
+                        Click="btnCashierReport_Click">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label Content="👤" FontSize="28" Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#E65100"/>
+                        <Label Content="Cashier Report"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="12" FontWeight="SemiBold"
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#BF360C"/>
+                        <Label Content="Per-Cashier Summary"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="9" 
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#EF6C00"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Close Day - AMBER -->
+                <Button x:Name="btnCloseDay" 
+                        Style="{StaticResource NavBtnAmber}"
+                        Click="btnCloseDay_Click">
+                    <StackPanel HorizontalAlignment="Center">
+                        <Label Content="🌙" FontSize="28" Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#E65100"/>
+                        <Label Content="Close Day"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="12" FontWeight="SemiBold"
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#BF360C"/>
+                        <Label Content="Archive and Reset"
+                               FontFamily="Segoe UI, Tahoma"
+                               FontSize="9" 
+                               Padding="0"
+                               HorizontalContentAlignment="Center"
+                               Foreground="#EF6C00"/>
+                    </StackPanel>
+                </Button>
+
+            </WrapPanel>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  FOOTER                                                -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <Label Grid.Row="2"
+               Content="💡 Select a report type to view detailed analytics and export options"
+               Foreground="#888888" FontSize="11"
+               Margin="20,0,20,15"
+               HorizontalAlignment="Center"
+               FontFamily="Segoe UI, Tahoma"/>
+    </Grid>
+</Window>

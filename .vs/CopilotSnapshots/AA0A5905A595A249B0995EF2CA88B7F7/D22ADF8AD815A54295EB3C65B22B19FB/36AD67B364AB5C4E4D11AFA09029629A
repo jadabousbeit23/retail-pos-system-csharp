@@ -1,0 +1,627 @@
+﻿using POSSystem.Database;
+using POSSystem.Windows;
+using System;
+using System.Collections.Generic;
+using System.Data.SQLite;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Controls;
+
+namespace POSSystem
+{
+    public partial class MainWindow : Window
+    {
+        System.Windows.Threading.DispatcherTimer _clockTimer;
+        System.Windows.Threading.DispatcherTimer _refreshTimer;
+        List<DayData> _chartData = new List<DayData>();
+
+        // ── date format must match what you INSERT into the DB ──
+        // Change this one constant if your format differs
+        const string DATE_FMT = "dd/MM/yyyy";
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            lblWelcome.Content =
+                $"Welcome back, {Session.Username}!";
+
+            if (!Session.IsAdmin)
+            {
+                btnProducts.Visibility = Visibility.Collapsed;
+                btnReports.Visibility = Visibility.Collapsed;
+                btnUsers.Visibility = Visibility.Collapsed;
+                btnVoidedSales.Visibility = Visibility.Collapsed;
+                btnPurchaseOrders.Visibility = Visibility.Collapsed;
+            }
+
+            // Clock — ticks every second
+            _clockTimer =
+                new System.Windows.Threading.DispatcherTimer();
+            _clockTimer.Interval = TimeSpan.FromSeconds(1);
+            _clockTimer.Tick += (s, e) =>
+                lblDateTime.Content =
+                    DateTime.Now.ToString(
+                        "dddd, dd MMM yyyy   HH:mm:ss");
+            _clockTimer.Start();
+            lblDateTime.Content =
+                DateTime.Now.ToString("dddd, dd MMM yyyy   HH:mm:ss");
+
+            // Auto-refresh every 5 seconds so stats stay live
+            _refreshTimer =
+                new System.Windows.Threading.DispatcherTimer();
+            _refreshTimer.Interval = TimeSpan.FromSeconds(5);
+            _refreshTimer.Tick += (s, e) => LoadDashboard();
+            _refreshTimer.Start();
+
+            this.PreviewKeyDown += MainWindow_PreviewKeyDown;
+
+            // Load AFTER render so canvas ActualWidth/Height is ready
+            this.ContentRendered += (s, e) =>
+            {
+                LoadDashboard();
+                // Focus the window so keyboard shortcuts work immediately
+                this.Focus();
+            };
+        }
+
+        // ══════════════════════════════════════
+        // KEYBOARD SHORTCUTS
+        // ══════════════════════════════════════
+        private void MainWindow_PreviewKeyDown(
+            object sender, KeyEventArgs e)
+        {
+            if (e == null) return;
+            switch (e.Key)
+            {
+                case Key.D1:
+                case Key.NumPad1:
+                    if (Session.IsAdmin)
+                        btnProducts_Click(null, null);
+                    e.Handled = true; break;
+                case Key.D2:
+                case Key.NumPad2:
+                    if (Session.IsAdmin)
+                        btnReports_Click(null, null);
+                    e.Handled = true; break;
+                case Key.D3:
+                case Key.NumPad3:
+                    if (Session.IsAdmin)
+                        btnUsers_Click(null, null);
+                    e.Handled = true; break;
+                case Key.D4:
+                case Key.NumPad4:
+                    if (Session.IsAdmin)
+                        btnVoidedSales_Click(null, null);
+                    e.Handled = true; break;
+                case Key.D5:
+                case Key.NumPad5:
+                    btnChangePassword_Click(null, null);
+                    e.Handled = true; break;
+                case Key.F5:
+                    LoadDashboard();
+                    // Flash "Refreshed!" briefly so you know it fired
+                    string prev = lblLowStockBadge.Content?.ToString() ?? "";
+                    lblLowStockBadge.Content = "🔄 Refreshed!";
+                    var t = new System.Windows.Threading.DispatcherTimer
+                    { Interval = TimeSpan.FromSeconds(1) };
+                    t.Tick += (ts, te) =>
+                    {
+                        lblLowStockBadge.Content = prev;
+                        t.Stop();
+                    };
+                    t.Start();
+                    e.Handled = true; break;
+                case Key.Escape:
+                    btnLogout_Click(null, null);
+                    e.Handled = true; break;
+            }
+        }
+
+        // ══════════════════════════════════════
+        // LOAD DASHBOARD  (single DB connection)
+        // ══════════════════════════════════════
+        void LoadDashboard()
+        {
+            try
+            {
+                using (SQLiteConnection con =
+                    new SQLiteConnection(
+                        DatabaseHelper.ConnectionString))
+                {
+                    con.Open();
+                    int lowThreshold = SettingsHelper.GetInt("LowStockThreshold");
+                    string today = DateTime.Now.ToString(DATE_FMT);
+                    string monthPrefix =
+                        DateTime.Now.ToString("MM/yyyy");   // e.g. "04/2026"
+
+                    // ── TODAY'S SALES ─────────────────────────
+                    SQLiteCommand sc = new SQLiteCommand(
+                        "SELECT COUNT(*), IFNULL(SUM(TotalAmount),0) " +
+                        "FROM Sales WHERE Date LIKE @d", con);
+                    sc.Parameters.AddWithValue("@d", $"%{today}%");
+                    using (SQLiteDataReader sr = sc.ExecuteReader())
+                    {
+                        int cnt = 0;
+                        double rev = 0;
+                        if (sr.Read())
+                        {
+                            cnt = Convert.ToInt32(sr[0]);
+                            rev = Convert.ToDouble(sr[1]);
+                        }
+                        lblTodaySales.Content = cnt.ToString("N0");
+                        lblTodayRevenue.Content = "LBP " + rev.ToString("N0");
+                    }
+
+                    // ── MONTH SALES (single query, fast) ──────
+                    SQLiteCommand mc = new SQLiteCommand(
+                        "SELECT COUNT(*), IFNULL(SUM(TotalAmount),0) " +
+                        "FROM Sales WHERE Date LIKE @m", con);
+                    mc.Parameters.AddWithValue("@m", $"%{monthPrefix}%");
+                    using (SQLiteDataReader mr = mc.ExecuteReader())
+                    {
+                        int mCnt = 0;
+                        double mRev = 0;
+                        if (mr.Read())
+                        {
+                            mCnt = Convert.ToInt32(mr[0]);
+                            mRev = Convert.ToDouble(mr[1]);
+                        }
+                        lblMonthRevenue.Content =
+                            "LBP " + mRev.ToString("N0");
+                        lblMonthSales.Content =
+                            $"{mCnt} sales this month";
+                    }
+
+                    // ── PRODUCTS + LOW STOCK ──────────────────
+                    int prodCount = Convert.ToInt32(
+                        new SQLiteCommand(
+                            "SELECT COUNT(*) FROM Products",
+                            con).ExecuteScalar());
+                    lblTotalProducts.Content = prodCount.ToString("N0");
+
+                    SQLiteCommand lsc = new SQLiteCommand(
+                        "SELECT Name, Stock FROM Products " +
+                        "WHERE Stock <= @threshold ORDER BY Stock ASC", con);
+                    List<LowStockItem> lowItems =
+                        new List<LowStockItem>();
+
+                    using (SQLiteDataReader lr = lsc.ExecuteReader())
+                    {
+                        cmd.Parameters.AddWithValue("@threshold", lowThreshold);
+                        while (lr.Read())
+                            lowItems.Add(new LowStockItem
+                            {
+                                Name = lr["Name"].ToString(),
+                                Stock = Convert.ToInt32(lr["Stock"]),
+                                StockText = $"{lr["Stock"]} left"
+                            });
+                    }
+
+                    if (lowItems.Count > 0)
+                    {
+                        borderLowStock.Visibility = Visibility.Visible;
+                        icLowStock.ItemsSource = lowItems;
+                        icLowStockPanel.ItemsSource = lowItems;
+                        lblLowStockBadge.Content =
+                            $"⚠️ {lowItems.Count} low stock item(s)";
+                        lblLowStockCount.Content =
+                            $"⚠️ {lowItems.Count} low stock";
+                        lblLowStockCount.Foreground =
+                            new SolidColorBrush(
+                                Color.FromRgb(255, 107, 107));
+                    }
+                    else
+                    {
+                        borderLowStock.Visibility = Visibility.Collapsed;
+                        lblLowStockBadge.Content = "";
+                        lblLowStockCount.Content = "✅ All stocked";
+                        lblLowStockCount.Foreground =
+                            new SolidColorBrush(
+                                Color.FromRgb(105, 240, 174));
+                        icLowStockPanel.ItemsSource = null;
+                        icLowStock.ItemsSource = null;
+                    }
+
+                    // ── TOP PRODUCTS TODAY ────────────────────
+                    SQLiteCommand tpc = new SQLiteCommand(@"
+                        SELECT Products.Name,
+                               SUM(SaleItems.Quantity) AS TotalQty
+                        FROM SaleItems
+                        JOIN Sales    ON SaleItems.SaleId    = Sales.Id
+                        JOIN Products ON SaleItems.ProductId = Products.Id
+                        WHERE Sales.Date LIKE @d
+                        GROUP BY Products.Name
+                        ORDER BY TotalQty DESC
+                        LIMIT 5", con);
+                    tpc.Parameters.AddWithValue("@d", $"%{today}%");
+                    List<TopProductItem> topItems =
+                        new List<TopProductItem>();
+                    int rank = 1;
+                    using (SQLiteDataReader tr2 = tpc.ExecuteReader())
+                    {
+                        while (tr2.Read())
+                        {
+                            topItems.Add(new TopProductItem
+                            {
+                                Rank = rank.ToString(),
+                                Name = tr2["Name"].ToString(),
+                                QtyText = $"x{tr2["TotalQty"]}"
+                            });
+                            rank++;
+                        }
+                    }
+
+                    if (topItems.Count == 0)
+                        topItems.Add(new TopProductItem
+                        {
+                            Rank = "—",
+                            Name = "No sales today yet",
+                            QtyText = ""
+                        });
+                    icTopProducts.ItemsSource = topItems;
+
+                    // ── 7-DAY CHART ───────────────────────────
+                    Load7DayData(con);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Silently log — don't crash the dashboard
+                System.Diagnostics.Debug.WriteLine(
+                    "Dashboard error: " + ex.Message);
+            }
+        }
+
+        // ══════════════════════════════════════
+        // 7-DAY DATA  (one query, not 7)
+        // ══════════════════════════════════════
+        void Load7DayData(SQLiteConnection con)
+        {
+            _chartData.Clear();
+            List<string> labels = new List<string>();
+
+            // Build a lookup: dateString -> (count, revenue)
+            // We'll pull all sales in the last 7 days at once
+            string dateFrom =
+                DateTime.Now.AddDays(-6).ToString(DATE_FMT);
+            string dateTo =
+                DateTime.Now.ToString(DATE_FMT);
+
+            // Pull all sales in range; group in C# because the
+            // date is stored as a string in your format
+            Dictionary<string, double> revMap =
+                new Dictionary<string, double>();
+            Dictionary<string, int> cntMap =
+                new Dictionary<string, int>();
+
+            // Initialize all 7 days to zero first
+            for (int i = 6; i >= 0; i--)
+            {
+                string key =
+                    DateTime.Now.AddDays(-i).ToString(DATE_FMT);
+                revMap[key] = 0;
+                cntMap[key] = 0;
+            }
+
+            SQLiteCommand cmd = new SQLiteCommand(
+                "SELECT Date, TotalAmount FROM Sales", con);
+            using (SQLiteDataReader dr = cmd.ExecuteReader())
+            {
+                while (dr.Read())
+                {
+                    string raw = dr["Date"].ToString();
+                    // Extract date portion (handles datetime strings too)
+                    string datePart = raw.Length >= 10
+                        ? raw.Substring(0, 10)
+                        : raw;
+
+                    if (revMap.ContainsKey(datePart))
+                    {
+                        revMap[datePart] +=
+                            Convert.ToDouble(dr["TotalAmount"]);
+                        cntMap[datePart]++;
+                    }
+                }
+            }
+
+            for (int i = 6; i >= 0; i--)
+            {
+                DateTime day = DateTime.Now.AddDays(-i);
+                string key = day.ToString(DATE_FMT);
+
+                _chartData.Add(new DayData
+                {
+                    Label = day.ToString("ddd\ndd/MM"),
+                    Revenue = revMap.ContainsKey(key)
+                                  ? revMap[key] : 0,
+                    Count = cntMap.ContainsKey(key)
+                                  ? cntMap[key] : 0
+                });
+                labels.Add(day.ToString("ddd"));
+            }
+
+            icDayLabels.ItemsSource = labels;
+            DrawBarChart();
+        }
+
+        // ══════════════════════════════════════
+        // DRAW BAR CHART
+        // ══════════════════════════════════════
+        void DrawBarChart()
+        {
+            canvasChart.Children.Clear();
+            if (_chartData.Count == 0) return;
+
+            double w = canvasChart.ActualWidth;
+            double h = canvasChart.ActualHeight;
+            if (w < 10 || h < 10) return;
+
+            double maxRev = 0;
+            foreach (DayData d in _chartData)
+                if (d.Revenue > maxRev) maxRev = d.Revenue;
+            if (maxRev == 0) maxRev = 1;
+
+            // ── GRID LINES + Y-AXIS LABELS ────────────────
+            for (int i = 0; i <= 4; i++)
+            {
+                double y = h - (h * i / 4.0);
+
+                System.Windows.Shapes.Line gl =
+                    new System.Windows.Shapes.Line
+                    {
+                        X1 = 58,
+                        X2 = w,
+                        Y1 = y,
+                        Y2 = y,
+                        Stroke = new SolidColorBrush(
+                            Color.FromRgb(30, 50, 70)),
+                        StrokeThickness = 0.5
+                    };
+                canvasChart.Children.Add(gl);
+
+                double val = maxRev * i / 4.0;
+                TextBlock tb = new TextBlock
+                {
+                    // Smart abbreviation: M/K for large LBP numbers
+                    Text = FormatLbpShort(val),
+                    FontSize = 8,
+                    Foreground = new SolidColorBrush(
+                        Color.FromRgb(144, 202, 249))
+                };
+                Canvas.SetLeft(tb, 0);
+                Canvas.SetTop(tb, y - 9);
+                canvasChart.Children.Add(tb);
+            }
+
+            // ── BARS ──────────────────────────────────────
+            double barAreaW = w - 62;
+            double barW = barAreaW / _chartData.Count;
+            double gap = barW * 0.22;
+            double actualW = barW - gap;
+
+            for (int i = 0; i < _chartData.Count; i++)
+            {
+                DayData d = _chartData[i];
+                double barH = d.Revenue / maxRev * (h - 28);
+                if (barH < 2 && d.Revenue > 0) barH = 2;
+
+                double x = 60 + i * barW + gap / 2.0;
+                double y = h - barH;
+
+                // Today's bar is amber, previous are blue gradient
+                Color barColor = i == 6
+                    ? Color.FromRgb(255, 193, 7)
+                    : Color.FromRgb(
+                        (byte)Math.Min(255, 21 + i * 10),
+                        (byte)Math.Min(255, 101 + i * 12),
+                        192);
+
+                System.Windows.Shapes.Rectangle rect =
+                    new System.Windows.Shapes.Rectangle
+                    {
+                        Width = actualW,
+                        Height = Math.Max(barH, 0),
+                        RadiusX = 4,
+                        RadiusY = 4,
+                        Fill = new LinearGradientBrush(
+                            barColor,
+                            Color.FromRgb(
+                                (byte)Math.Max(0, barColor.R - 50),
+                                (byte)Math.Max(0, barColor.G - 50),
+                                (byte)Math.Max(0, barColor.B - 50)),
+                            90)
+                    };
+                Canvas.SetLeft(rect, x);
+                Canvas.SetTop(rect, y);
+                canvasChart.Children.Add(rect);
+
+                // Revenue label above bar
+                if (d.Revenue > 0)
+                {
+                    TextBlock vl = new TextBlock
+                    {
+                        Text = FormatLbpShort(d.Revenue),
+                        FontSize = 8,
+                        FontWeight = FontWeights.Bold,
+                        Foreground = new SolidColorBrush(Colors.White)
+                    };
+                    Canvas.SetLeft(vl, x);
+                    Canvas.SetTop(vl, Math.Max(0, y - 14));
+                    canvasChart.Children.Add(vl);
+                }
+
+                // Sale count label inside / below revenue label
+                if (d.Count > 0)
+                {
+                    TextBlock cl = new TextBlock
+                    {
+                        Text =
+                            $"{d.Count} sale{(d.Count > 1 ? "s" : "")}",
+                        FontSize = 7.5,
+                        Foreground = new SolidColorBrush(
+                            Color.FromRgb(144, 202, 249))
+                    };
+                    Canvas.SetLeft(cl, x);
+                    Canvas.SetTop(cl,
+                        Math.Max(0, h - barH - 26));
+                    canvasChart.Children.Add(cl);
+                }
+            }
+
+            // ── X AXIS LINE ───────────────────────────────
+            System.Windows.Shapes.Line xAxis =
+                new System.Windows.Shapes.Line
+                {
+                    X1 = 58,
+                    X2 = w,
+                    Y1 = h,
+                    Y2 = h,
+                    Stroke = new SolidColorBrush(
+                        Color.FromRgb(69, 90, 100)),
+                    StrokeThickness = 1
+                };
+            canvasChart.Children.Add(xAxis);
+        }
+
+        // ── Formats large LBP values as "1.2M" or "450K" ──
+        static string FormatLbpShort(double val)
+        {
+            if (val >= 1_000_000)
+                return (val / 1_000_000).ToString("0.#") + "M";
+            if (val >= 1_000)
+                return (val / 1_000).ToString("0.#") + "K";
+            return val.ToString("N0");
+        }
+
+        // Redraw chart whenever the canvas is resized
+        private void canvasChart_SizeChanged(
+            object sender, SizeChangedEventArgs e)
+        {
+            DrawBarChart();
+        }
+
+        // ══════════════════════════════════════
+        // NAVIGATION
+        // ══════════════════════════════════════
+        private void btnProducts_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new ProductsWindow().ShowDialog();
+            LoadDashboard();
+        }
+
+        private void btnReports_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new ReportsWindow().ShowDialog();
+            LoadDashboard();
+        }
+
+        private void btnUsers_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new UsersWindow().ShowDialog();
+            LoadDashboard();
+        }
+
+        private void btnVoidedSales_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new VoidedSalesWindow().ShowDialog();
+            LoadDashboard();
+        }
+
+        private void btnChangePassword_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new ChangePasswordWindow().ShowDialog();
+        }
+
+        private void btnFastSale_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new FastSalesWindow().ShowDialog();
+            LoadDashboard();
+        }
+
+        private void btnGridSale_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new GridSalesWindow().ShowDialog();
+            LoadDashboard();
+        }
+
+        private void btnBackup_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new BackupWindow().ShowDialog();
+        }
+
+        private void btnExcelExport_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new ExcelExportWindow().ShowDialog();
+        }
+
+        private void btnPurchaseOrders_Click(
+            object sender, RoutedEventArgs e)
+        {
+            new PurchaseOrdersWindow().ShowDialog();
+            LoadDashboard();
+        }
+
+        private void btnLogout_Click(
+            object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show(
+                "Are you sure you want to logout?",
+                "🚪 Logout",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                _clockTimer.Stop();
+                _refreshTimer.Stop();
+                Session.Username = "";
+                Session.Role = "";
+                new LoginWindow().Show();
+                this.Close();
+            }
+        }
+        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            LoadDashboard();
+        }
+
+        private void btnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            new SettingsWindow().ShowDialog();
+        }
+    }
+
+    // ══════════════════════════════════════
+    // MODELS
+    // ══════════════════════════════════════
+    public class LowStockItem
+    {
+        public string Name { get; set; }
+        public int Stock { get; set; }
+        public string StockText { get; set; }
+    }
+
+    public class TopProductItem
+    {
+        public string Rank { get; set; }
+        public string Name { get; set; }
+        public string QtyText { get; set; }
+    }
+
+    public class DayData
+    {
+        public string Label { get; set; }
+        public double Revenue { get; set; }
+        public int Count { get; set; }
+    }
+}
