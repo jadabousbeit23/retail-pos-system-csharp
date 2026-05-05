@@ -21,7 +21,10 @@ EPPlus
 PDFSharp
 📸 Screenshots
 
-(Add images here)
+![Login](login.png)
+![Dashboard](dashboard.png)
+![POS Screen](posscreen.png)
+![Reports](reports.png)
 
 ▶️ How to Run
 Clone the repository
