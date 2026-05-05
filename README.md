@@ -18,7 +18,7 @@ A **professional-grade Point of Sale system** built for **Lebanese retail busine
 
 ## 🎥 Demo Preview
 
-> *(Replace with a GIF of your application for best impact)*
+> *(To be added)*
 
 ![POS Demo](demo.gif)
 
