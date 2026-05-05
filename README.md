@@ -111,4 +111,4 @@ It is optimized for **practical business usage in Lebanon**, where dual-currency
 ### 📥 Installation
 
 ```bash
-git clone https://github.com/your-username/pos-system.git
+gh repo clone jadabousbeit23/retail-pos-system-csharp
